@@ -42,7 +42,7 @@ def keep_common_bit(input_list, compare_bit):
 
 def life_support(bin_list, comparison_list):
     oxygen_rating, co2_rating = 0, 0
-    oxygen_list, co2_list = [int(entry, 2) for entry in bin_list], [int(entry, 2) for entry in bin_list]
+    oxygen_list = co2_list = [int(entry, 2) for entry in bin_list]
     for compare in comparison_list:
         oxygen_res = keep_common_bit(oxygen_list, compare)
         oxygen_rating += oxygen_res[0]
