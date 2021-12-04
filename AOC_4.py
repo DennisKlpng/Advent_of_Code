@@ -10,27 +10,20 @@ def check_if_winner(board):
 
 def calc_bingo(fields, input_sequence):
     fields_len = len(fields)
+    wins = [0] * fields_len
     for number in input_sequence:
-        board_count = 0
-        remove_boards = []
-
-        for board in fields:
-            ret_val = [x for x in zip(*np.where(board == number))]
+        for n_board in range(fields_len):
+            ret_val = [x for x in zip(*np.where(fields[n_board] == number))]
             if len(ret_val) > 0:
-                board[ret_val[0][0]][ret_val[0][1]] = 0
-                board_sum = check_if_winner(board)
+                fields[n_board][ret_val[0][0]][ret_val[0][1]] = 0
+                board_sum = check_if_winner(fields[n_board])
                 if board_sum > 0:  # board fulfills the condition
-                    if len(fields) == fields_len:
+                    wins[n_board] = 1
+                    if sum(wins) == 1:
                         print("Result pt 1: " + str(board_sum * number))
-                    if len(fields) == 1:
+                    if sum(wins) == fields_len:
                         print("Result pt 2: " + str(board_sum * number))
-                    remove_boards.append(board_count)
-                    print(board)
-            board_count += 1
-        for num in reversed(remove_boards):
-            fields.pop(num)
-        remove_boards.clear()
-    return
+                        return
 
 
 if __name__ == '__main__':
