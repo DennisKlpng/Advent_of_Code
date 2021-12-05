@@ -11,7 +11,7 @@ def convert_line(list_input_pts, consider_diag) -> list:
         elif abs(diff_vec[0]) != abs(diff_vec[1]):  # not diagonal
             return None
 
-    len_diff_vec = max(abs(diff_vec[0]), abs(diff_vec[1]))  # if one is => non-zero value, if diag both equal
+    len_diff_vec = max(abs(diff_vec[0]), abs(diff_vec[1]))  # if one is 0 => non-zero value, if diag both equal
     abs_diff_vec = [int(diff_vec[0]/len_diff_vec), int(diff_vec[1]/len_diff_vec)]
 
     return [[points[0][0] + i*abs_diff_vec[0], points[0][1] + i*abs_diff_vec[1]] for i in range(0, len_diff_vec + 1)]
