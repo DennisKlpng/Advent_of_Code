@@ -3,11 +3,8 @@ import sys
 
 if __name__ == '__main__':
     with open(sys.argv[1], "r") as f:
-        input_list = list(map(lambda x: int(x), f.readline().split(",")))
-        fishies = [0] * 9
-
-        for input_fish in input_list:
-            fishies[input_fish] += 1
+        input_list = f.readline().split(",")
+        fishies = [input_list.count(str(i)) for i in range(9)]
 
         for day in range(256):
             fishies_to_multiply = fishies[0]
