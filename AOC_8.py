@@ -17,65 +17,45 @@ if __name__ == '__main__':
                           "e": None, "f": None, "g": None}
             parts = line.split(" | ")
             input_numbers = parts[0].split(" ")
+            input_numbers.sort(key=lambda x: len(x))
+            # sorted list by length => input_list[0] = 1, input_list[1] = 7, input_list[2] = 4, input_list[9] = 8
             output_numbers = parts[1].split(" ")
-            number_assoc = [-1] * 10  # number_assoc[n] = number, with n = n-th entry in input_numbers for quick access
+            number_assoc = [-1, 0, -1, -1, 2, -1, -1, 1, 9, -1]
 
+            # calc complete association
+            potential_TwoFive = []
             for i in range(10):
-                if len(input_numbers[i]) == 2:
-                    number_assoc[1] = i
-                elif len(input_numbers[i]) == 3:
-                    number_assoc[7] = i
-                elif len(input_numbers[i]) == 4:
-                    number_assoc[4] = i
-                elif len(input_numbers[i]) == 7:
-                    number_assoc[8] = i
+                if len(input_numbers[i]) == 6:  # 0, 6, 9
+                    if "" == str_substraction(input_numbers[2], input_numbers[i]):
+                        number_assoc[9] = i  # 4-x empty => 9
+                    elif "" == str_substraction(input_numbers[1], input_numbers[i]):
+                        number_assoc[0] = i  # remainder: only 0 is empty when 7 - x
+                    else:
+                        number_assoc[6] = i
+                elif len(input_numbers[i]) == 5:  # 2, 3, 5
+                    if "" == str_substraction(input_numbers[0], input_numbers[i]):
+                        number_assoc[3] = i  # 1-x empty => 3
+                    else:
+                        potential_TwoFive.append(i)
 
-            # The only element present in 7, but not in 1 is the real letter "a" (top)
-            assoc_dict["a"] = str_substraction(input_numbers[number_assoc[7]], input_numbers[number_assoc[1]])
-
-            # Substract all unknown elements from "1" => we will have two occurences of "c" missing (these are 5 and 6)
-            # and one occurence of "f" missing => this is 2 and we now know "f" and (from "1") "c"
-            entries_miss = {input_numbers[number_assoc[1]][0]: 0, input_numbers[number_assoc[1]][1]: 0}
-            entry_miss_assoc = {input_numbers[number_assoc[1]][0]: [], input_numbers[number_assoc[1]][1]: []}
-            for i in range(10):
-                retval = str_substraction(input_numbers[number_assoc[1]], input_numbers[i])
-                if retval:
-                    entries_miss[retval] += 1
-                    entry_miss_assoc[retval].append(i)
-            for letter_str, num_assoc in entries_miss.items():
-                if num_assoc == 1:
-                    assoc_dict["f"] = letter_str
-                    number_assoc[2] = entry_miss_assoc[letter_str][0]
+            for i in potential_TwoFive:
+                if "" == str_substraction(input_numbers[i], input_numbers[number_assoc[9]]):
+                    number_assoc[5] = i  # only 5 is empty, when we substract 9 from it
                 else:
-                    assoc_dict["c"] = letter_str
-            # the larger of 5 and 6 is 6, the difference between 5 and 6 is e
-            if len(input_numbers[entry_miss_assoc[assoc_dict["c"]][0]]) > \
-                    len(input_numbers[entry_miss_assoc[assoc_dict["c"]][1]]):
-                # entry 0 is 6 and 1 is 5
-                number_assoc[6] = entry_miss_assoc[assoc_dict["c"]][0]
-                number_assoc[5] = entry_miss_assoc[assoc_dict["c"]][1]
-            else:
-                number_assoc[6] = entry_miss_assoc[assoc_dict["c"]][1]
-                number_assoc[5] = entry_miss_assoc[assoc_dict["c"]][0]
+                    number_assoc[2] = i
+
+            # calc letter association:
+            # a = 7-4; b = 9-3; c = 9-5; d = 8-0; e = 6-5; f = 8-(2+b); g = 9-(4+a)
+            assoc_dict["a"] = str_substraction(input_numbers[number_assoc[7]], input_numbers[number_assoc[1]])
+            assoc_dict["b"] = str_substraction(input_numbers[number_assoc[9]], input_numbers[number_assoc[3]])
+            assoc_dict["c"] = str_substraction(input_numbers[number_assoc[9]], input_numbers[number_assoc[5]])
+            assoc_dict["d"] = str_substraction(input_numbers[number_assoc[8]], input_numbers[number_assoc[0]])
             assoc_dict["e"] = str_substraction(input_numbers[number_assoc[6]], input_numbers[number_assoc[5]])
 
-            # b, d, g still missing; 0, 3, 9 still missing.
-            # We can get 9 from substracting all from 8, when the result is e, this one was 9
-            # if it's not but the length is 6, it's 0. if it's 5, it's 3
-            for i in range(10):
-                diff = str_substraction(input_numbers[number_assoc[8]], input_numbers[i])
-                if assoc_dict["e"] == diff:
-                    number_assoc[9] = i
-                elif len(input_numbers[i]) == 6 and diff != assoc_dict["c"]:
-                    number_assoc[0] = i
-                    assoc_dict["d"] = diff
-                elif len(input_numbers[i]) == 5 and i not in number_assoc:
-                    number_assoc[3] = i
-
-            # get the missing letters: b = 9 - 3, g = 9 - 4 but not a
-            assoc_dict["b"] = str_substraction(input_numbers[number_assoc[9]], input_numbers[number_assoc[3]])
-            retval = str_substraction(input_numbers[number_assoc[9]], input_numbers[number_assoc[4]])
-            assoc_dict["g"] = str_substraction(retval, assoc_dict["a"])
+            assoc_dict["f"] = str_substraction(input_numbers[number_assoc[8]], input_numbers[number_assoc[2]]
+                                               + assoc_dict["b"])
+            assoc_dict["g"] = str_substraction(input_numbers[number_assoc[9]], input_numbers[number_assoc[4]]
+                                               + assoc_dict["a"])
 
             # Convert real numbers with encryption:
             for index in range(10):
