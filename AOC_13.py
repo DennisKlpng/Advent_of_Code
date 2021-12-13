@@ -52,7 +52,7 @@ if __name__ == '__main__':
         y_max = max([x[1] for x in key_list])
 
         os.system('color')
-        matrix = [["."]*(x_max+1) for i in range(y_max+1)]
+        matrix = [[" "]*(x_max+1) for i in range(y_max+1)]
         for entry in key_list:
             matrix[entry[1]][entry[0]] = '\x1b[6;30;42m' + '#' + '\x1b[0m'
         print('\n'.join([''.join([str(cell) for cell in row]) for row in matrix]))
