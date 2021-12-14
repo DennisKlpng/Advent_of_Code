@@ -1,5 +1,4 @@
 import sys
-from collections import Counter
 
 
 if __name__ == '__main__':
@@ -7,18 +6,23 @@ if __name__ == '__main__':
         conversions = {}
         data = f.read().split("\n\n")
         formula = data[0].strip()
-        init_length = len(formula)
         for line in data[1].split("\n"):
             conv = line.split("->")
             conversions[conv[0].strip()] = conv[1].strip()
 
-        for i in range(10):
-            expected_size = (init_length - 1)*pow(2, i+1) + 1
-            print("expected size: " + str(expected_size))
-            for index in range(1, expected_size, 2):
-            #    print("insert in: " + formula[index-1:index+1])
-                formula = formula[:index] + conversions[formula[index-1:index+1]] + formula[index:]
-            #print(formula)
+        count_elements = dict.fromkeys(conversions.values(), 0)
+        count_combines = dict.fromkeys(conversions.keys(), 0)
+        for i in range(len(formula)):
+            count_elements[formula[i]] += 1
+            if i < (len(formula) - 1):
+                count_combines[formula[i]+formula[i+1]] += 1
 
-        data = Counter(list(formula))
-        print("Solution pt1: " + str(data.most_common()[0][1] - data.most_common()[-1][1]))
+        for i in range(40):
+            for combination, count in count_combines.copy().items():
+                count_combines[combination] -= count
+                letter_to_add = conversions[combination]
+                count_elements[letter_to_add] += count
+                count_combines[combination[0]+letter_to_add] += count
+                count_combines[letter_to_add+combination[1]] += count
+
+        print("Solution: " + str(max(count_elements.values()) - min(count_elements.values())))
