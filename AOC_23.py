@@ -53,12 +53,20 @@ def get_potential_tgt_pos(board, element, curr_pos):  # str, (col, row)
                 continue  # pos on top of room
             if board[col][row] != '.':
                 continue  # space already occupied
-            if row > 0:  # check other elements in room
-                for row_further in range(row+1, len(board[col])):
-                    if board[col][row_further] != tgt_state[col][0]:
-                        continue  # invalid element in room => can't move here
-                continue  # room contains invalid element
-            if curr_pos[1] == row:
+            if row > 0:  # check other elements in room. If invalid val skip col, else continue if below is empty
+                invalid_val = False
+                other_elems = list(room_assoc.values())
+                other_elems.remove(element)
+                for further_row in range(1, len(board[col])):
+                    if board[col][further_row] in other_elems:
+                        invalid_val = True
+                        break
+                if invalid_val:
+                    break  # skip col completely
+                if row < len(board[col]) - 1 :
+                    if board[col][row+1] == '.':
+                        continue
+            if curr_pos[1] == 0 and curr_pos[1] == row:
                 continue  # elements can't move to other pos in hallway
             pot_tgt_pos = (col, row)
             # check if tgt_pos is reachable from curr_pos
@@ -77,10 +85,6 @@ def search_path(board, cost, board_tgt, cost_min):
 
     pot_movable_list = get_potential_moving_elements(board)
     for pot_movable in pot_movable_list:
-        if board[pot_movable[0]][pot_movable[1]] == '.':
-            print("Detected error!")
-            print("Pos: " + str(pot_movable[0]) + " / " + str(pot_movable[1]))
-            print(board)
         tgt_position_list = get_potential_tgt_pos(board, board[pot_movable[0]][pot_movable[1]], pot_movable)
         for pos in tgt_position_list:
             board_temp = copy.deepcopy(board)
@@ -93,8 +97,33 @@ def search_path(board, cost, board_tgt, cost_min):
                 continue
             cost += res[0]
             cost_min = res[1]
-            print(cost_min)
     return None
+
+
+def test_case(board):
+    pot_movable_list = get_potential_moving_elements(board)
+
+    # step 1: B from (6, 1) to (3, 0)
+    to_move = (6, 1)
+    assert to_move in pot_movable_list
+    tgt_move = ((3, 0), 40)
+    pot_tgt_list = get_potential_tgt_pos(board, board[to_move[0]][to_move[1]], to_move)
+    assert tgt_move in pot_tgt_list
+    board[tgt_move[0][0]][tgt_move[0][1]] = board[to_move[0]][to_move[1]]
+    board[to_move[0]][to_move[1]] = "."
+    assert board[3][0] == "B"
+    assert board[6][1] == "."
+
+    # step 2: C from (4, 1) to (6, 1)
+    to_move = (4, 1)
+    assert to_move in pot_movable_list
+    tgt_move = ((6, 1), 400)
+    pot_tgt_list = get_potential_tgt_pos(board, board[to_move[0]][to_move[1]], to_move)
+    assert tgt_move in pot_tgt_list
+    board[tgt_move[0][0]][tgt_move[0][1]] = board[to_move[0]][to_move[1]]
+    board[to_move[0]][to_move[1]] = "."
+    assert board[6][1] == "C"
+    assert board[4][1] == "."
 
 
 if __name__ == '__main__':
@@ -110,9 +139,10 @@ if __name__ == '__main__':
             for i in range(4):
                 board[2 + 2 * i].append(line_vals[i])
                 board_tgt[2 + 2 * i].append(room_assoc[2 + 2 * i])
-        print(board)
-        print(board_tgt)
+        #print(board)
+        #print(board_tgt)
         search_path(board, 0, board_tgt, sys.maxsize)
+        #test_case(board)
 
 
 
