@@ -1,11 +1,11 @@
 import sys
 import copy
-from collections import defaultdict
 
 
 tgt_state = {2: ['A', 'A'], 4: ['B', 'B'], 6: ['C', 'C'], 8: ['D', 'D']}
 room_assoc = {2: 'A', 4: 'B', 6: 'C', 8: 'D'}
 costs = {'A': 1, 'B': 10, 'C': 100, 'D': 1000}
+cost_min = sys.maxsize
 
 
 def get_distance(curr_pos, tgt_pos, element):
@@ -40,10 +40,17 @@ def get_potential_moving_elements(board):
 def check_reachability(board, curr_pos, tgt_pos):
     # vertical blockage impossible, only check hoizontal
     reachable = True
-    for i in range(curr_pos[0]+1, tgt_pos[0], tgt_pos[0]-curr_pos[0]):
-        if board[i][0] != '.':
-            reachable = False
-            break
+    if curr_pos[0] < tgt_pos[0]:
+        for i in range(curr_pos[0] + 1, tgt_pos[0], 1):
+            if board[i][0] != '.':
+                reachable = False
+                break
+    else:
+        for i in range(tgt_pos[0] + 1, curr_pos[0], 1):
+            if board[i][0] != '.':
+                reachable = False
+                break
+
     return reachable
 
 
@@ -83,12 +90,13 @@ def get_potential_tgt_pos(board, element, curr_pos):  # str, (col, row)
     return tgt_pos
 
 
-def search_path(board, cost, board_tgt, cost_min):
+def search_path(board, cost, board_tgt):
     if board == board_tgt:
-        print("Reached end, cost: " + str(cost))
+        global cost_min
         if cost < cost_min:
-            return 0, cost
-        return 0, cost_min
+            cost_min = cost
+            print("Reached end, cost: " + str(cost))
+        return 0
 
     pot_movable_list = get_potential_moving_elements(board)
     for pot_movable in pot_movable_list:
@@ -97,13 +105,14 @@ def search_path(board, cost, board_tgt, cost_min):
             board_temp = copy.deepcopy(board)
             cost_temp = cost
             cost_temp += pos[1]
+            if cost_temp > cost_min:
+                continue
             board_temp[pos[0][0]][pos[0][1]] = board_temp[pot_movable[0]][pot_movable[1]]
             board_temp[pot_movable[0]][pot_movable[1]] = "."
-            res = search_path(board_temp, cost_temp, board_tgt, cost)
+            res = search_path(board_temp, cost_temp, board_tgt)
             if not res:
                 continue
             cost += res[0]
-            cost_min = res[1]
     return None
 
 
@@ -245,8 +254,9 @@ if __name__ == '__main__':
                 board_tgt[2 + 2 * i].append(room_assoc[2 + 2 * i])
         #print(board)
         #print(board_tgt)
-        #search_path(board, 0, board_tgt, sys.maxsize)
-        test_case(board, board_tgt)
+        search_path(board, 0, board_tgt)
+        print(cost_min)
+        #test_case(board, board_tgt)
 
 
 
