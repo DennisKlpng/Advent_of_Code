@@ -25,7 +25,14 @@ def get_potential_moving_elements(board):
                 continue  # element can't move at all
             if row > 0:
                 if board[col][row] == tgt_state[col][0]:
-                    continue  # is in tgt pos, do not move
+                    # check if is in tgt pos and has no non-tgt element below => do not move
+                    invalid_val = False
+                    for further_row in range(row, len(board[col])):
+                        if board[col][further_row] != tgt_state[col][0]:
+                            invalid_val = True
+                            break
+                    if not invalid_val:
+                        continue  # is in tgt pos, do not move
             pot_elems.append((col, row))
     return pot_elems
 
@@ -100,7 +107,7 @@ def search_path(board, cost, board_tgt, cost_min):
     return None
 
 
-def test_case(board):
+def test_case(board, board_tgt):
     # step 1: B from (6, 1) to (3, 0)
     pot_movable_list = get_potential_moving_elements(board)
     to_move = (6, 1)
@@ -161,6 +168,67 @@ def test_case(board):
     assert board[4][1] == "B"
     assert board[2][1] == "."
 
+    # step 6: D from (8, 1) to (7, 0)
+    pot_movable_list = get_potential_moving_elements(board)
+    to_move = (8, 1)
+    assert to_move in pot_movable_list
+    tgt_move = ((7, 0), 2000)
+    pot_tgt_list = get_potential_tgt_pos(board, board[to_move[0]][to_move[1]], to_move)
+    assert tgt_move in pot_tgt_list
+    board[tgt_move[0][0]][tgt_move[0][1]] = board[to_move[0]][to_move[1]]
+    board[to_move[0]][to_move[1]] = "."
+    assert board[7][0] == "D"
+    assert board[8][1] == "."
+
+    # step 7: A from (8, 2) to (9, 0)
+    pot_movable_list = get_potential_moving_elements(board)
+    to_move = (8, 2)
+    assert to_move in pot_movable_list
+    tgt_move = ((9, 0), 3)
+    pot_tgt_list = get_potential_tgt_pos(board, board[to_move[0]][to_move[1]], to_move)
+    assert tgt_move in pot_tgt_list
+    board[tgt_move[0][0]][tgt_move[0][1]] = board[to_move[0]][to_move[1]]
+    board[to_move[0]][to_move[1]] = "."
+    assert board[9][0] == "A"
+    assert board[8][2] == "."
+
+    # step 8: D from (7, 0) to (8, 2)
+    pot_movable_list = get_potential_moving_elements(board)
+    to_move = (7, 0)
+    assert to_move in pot_movable_list
+    tgt_move = ((8, 2), 3000)
+    pot_tgt_list = get_potential_tgt_pos(board, board[to_move[0]][to_move[1]], to_move)
+    assert tgt_move in pot_tgt_list
+    board[tgt_move[0][0]][tgt_move[0][1]] = board[to_move[0]][to_move[1]]
+    board[to_move[0]][to_move[1]] = "."
+    assert board[8][2] == "D"
+    assert board[7][0] == "."
+
+    # step 8: D from (5, 0) to (8, 1)
+    pot_movable_list = get_potential_moving_elements(board)
+    to_move = (5, 0)
+    assert to_move in pot_movable_list
+    tgt_move = ((8, 1), 4000)
+    pot_tgt_list = get_potential_tgt_pos(board, board[to_move[0]][to_move[1]], to_move)
+    assert tgt_move in pot_tgt_list
+    board[tgt_move[0][0]][tgt_move[0][1]] = board[to_move[0]][to_move[1]]
+    board[to_move[0]][to_move[1]] = "."
+    assert board[8][1] == "D"
+    assert board[5][0] == "."
+
+    # step 9: A from (0, 9) to (2, 1)
+    pot_movable_list = get_potential_moving_elements(board)
+    to_move = (9, 0)
+    assert to_move in pot_movable_list
+    tgt_move = ((2, 1), 8)
+    pot_tgt_list = get_potential_tgt_pos(board, board[to_move[0]][to_move[1]], to_move)
+    assert tgt_move in pot_tgt_list
+    board[tgt_move[0][0]][tgt_move[0][1]] = board[to_move[0]][to_move[1]]
+    board[to_move[0]][to_move[1]] = "."
+    assert board[2][1] == "A"
+    assert board[9][0] == "."
+    assert board == board_tgt
+
 
 if __name__ == '__main__':
     with open(sys.argv[1], "r") as f:
@@ -178,7 +246,7 @@ if __name__ == '__main__':
         #print(board)
         #print(board_tgt)
         #search_path(board, 0, board_tgt, sys.maxsize)
-        test_case(board)
+        test_case(board, board_tgt)
 
 
 
