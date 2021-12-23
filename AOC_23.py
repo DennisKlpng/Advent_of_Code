@@ -33,7 +33,7 @@ def get_potential_moving_elements(board):
 def check_reachability(board, curr_pos, tgt_pos):
     # vertical blockage impossible, only check hoizontal
     reachable = True
-    for i in range(curr_pos[0], tgt_pos[0], tgt_pos[0]-curr_pos[0]):
+    for i in range(curr_pos[0]+1, tgt_pos[0], tgt_pos[0]-curr_pos[0]):
         if board[i][0] != '.':
             reachable = False
             break
@@ -63,7 +63,7 @@ def get_potential_tgt_pos(board, element, curr_pos):  # str, (col, row)
                         break
                 if invalid_val:
                     break  # skip col completely
-                if row < len(board[col]) - 1 :
+                if row < len(board[col]) - 1:
                     if board[col][row+1] == '.':
                         continue
             if curr_pos[1] == 0 and curr_pos[1] == row:
@@ -101,9 +101,8 @@ def search_path(board, cost, board_tgt, cost_min):
 
 
 def test_case(board):
-    pot_movable_list = get_potential_moving_elements(board)
-
     # step 1: B from (6, 1) to (3, 0)
+    pot_movable_list = get_potential_moving_elements(board)
     to_move = (6, 1)
     assert to_move in pot_movable_list
     tgt_move = ((3, 0), 40)
@@ -115,6 +114,7 @@ def test_case(board):
     assert board[6][1] == "."
 
     # step 2: C from (4, 1) to (6, 1)
+    pot_movable_list = get_potential_moving_elements(board)
     to_move = (4, 1)
     assert to_move in pot_movable_list
     tgt_move = ((6, 1), 400)
@@ -124,6 +124,42 @@ def test_case(board):
     board[to_move[0]][to_move[1]] = "."
     assert board[6][1] == "C"
     assert board[4][1] == "."
+
+    # step 3: C from (4, 1) to (6, 1)
+    pot_movable_list = get_potential_moving_elements(board)
+    to_move = (4, 2)
+    assert to_move in pot_movable_list
+    tgt_move = ((5, 0), 3000)
+    pot_tgt_list = get_potential_tgt_pos(board, board[to_move[0]][to_move[1]], to_move)
+    assert tgt_move in pot_tgt_list
+    board[tgt_move[0][0]][tgt_move[0][1]] = board[to_move[0]][to_move[1]]
+    board[to_move[0]][to_move[1]] = "."
+    assert board[5][0] == "D"
+    assert board[4][2] == "."
+
+    # step 4: B from (3, 0) to (4, 2)
+    pot_movable_list = get_potential_moving_elements(board)
+    to_move = (3, 0)
+    assert to_move in pot_movable_list
+    tgt_move = ((4, 2), 30)
+    pot_tgt_list = get_potential_tgt_pos(board, board[to_move[0]][to_move[1]], to_move)
+    assert tgt_move in pot_tgt_list
+    board[tgt_move[0][0]][tgt_move[0][1]] = board[to_move[0]][to_move[1]]
+    board[to_move[0]][to_move[1]] = "."
+    assert board[4][2] == "B"
+    assert board[3][0] == "."
+
+    # step 5: B from (2, 1) to (4, 1)
+    pot_movable_list = get_potential_moving_elements(board)
+    to_move = (2, 1)
+    assert to_move in pot_movable_list
+    tgt_move = ((4, 1), 40)
+    pot_tgt_list = get_potential_tgt_pos(board, board[to_move[0]][to_move[1]], to_move)
+    assert tgt_move in pot_tgt_list
+    board[tgt_move[0][0]][tgt_move[0][1]] = board[to_move[0]][to_move[1]]
+    board[to_move[0]][to_move[1]] = "."
+    assert board[4][1] == "B"
+    assert board[2][1] == "."
 
 
 if __name__ == '__main__':
@@ -141,8 +177,8 @@ if __name__ == '__main__':
                 board_tgt[2 + 2 * i].append(room_assoc[2 + 2 * i])
         #print(board)
         #print(board_tgt)
-        search_path(board, 0, board_tgt, sys.maxsize)
-        #test_case(board)
+        #search_path(board, 0, board_tgt, sys.maxsize)
+        test_case(board)
 
 
 
