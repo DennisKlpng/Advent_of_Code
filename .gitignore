@@ -130,3 +130,9 @@ dmypy.json
 
 # AOC input data
 *.txt
+
+# cpp exe
+*.exe
+
+# VS Code
+.vscode
