@@ -14,8 +14,9 @@ bool check_if_safe(std::vector<int> nums){
     for(int n = 0; n < nums.size() - 1; n++){
         pair_orders[n] = check_order(nums[n], nums[n+1]);
     }
-    if(std::all_of(pair_orders.cbegin(), pair_orders.cend(), [](int i) { return (1 == i); })
-    || std::all_of(pair_orders.cbegin(), pair_orders.cend(), [](int i) { return (-1 == i); })
+    int fst= pair_orders[0];
+    //check if all pairs have the same ordering as the first one (and that this isn't 0, aka equal)
+    if((fst != 0) && std::all_of(pair_orders.cbegin(), pair_orders.cend(), [&fst](int i) { return (fst == i); })
     ){
         return true;
     }
@@ -31,7 +32,7 @@ std::pair<int, int> solve_puzzle(std::string filename){
         std::vector<int> ints_line = split_string_int(n);
         //pt 1:
         if(check_if_safe(ints_line)) res.first++;
-        //pt 2:
+        //pt 2 brute force: try with each num for each line removed, doesn't make that much of a difference with the small inputs
         for(int i = 0; i < ints_line.size(); i++){
             std::vector<int> new_vec = ints_line;
             new_vec.erase(new_vec.begin() + i);
