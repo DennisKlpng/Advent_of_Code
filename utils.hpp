@@ -6,6 +6,9 @@
 #include <type_traits>
 #include <map>
 #include <unordered_map>
+#include <algorithm>
+#include <cassert>
+#include <ranges>
 
 std::vector<std::string> read_file_as_lines(const std::string filename){
     std::vector<std::string> lines;
@@ -48,11 +51,10 @@ void print(T arg, Ts... arg2){
 //specialization for vector of trivially printable types
 template <typename T, typename... Ts>
 void print(std::vector<T> arg, Ts... arg2){
-    std::cout << "vector type: \n";
-    for(auto& i : arg){
-        print(i);
+    for(auto const& elem: arg) {
+        std::cout << elem << " ";
     }
-    std::cout << "end of vector" << std::endl;
+    std::cout << "\n";
     print(arg2...);
 }
 
