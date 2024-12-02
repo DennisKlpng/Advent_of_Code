@@ -1,7 +1,4 @@
 #include "utils.hpp"
-#include <algorithm>
-#include <numeric>
-#include <unordered_map>
 
 int check_order(int a, int b){
     if((a != b) && (abs(b-a) <= 3)) return (b-a)/abs(b-a); //+1 if increasing, -1 if decreasing
