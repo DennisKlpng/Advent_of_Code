@@ -1,5 +1,7 @@
 #include "utils.hpp"
 
+#include <chrono>
+
 int check_order(int a, int b){
     if((a != b) && (abs(b-a) <= 3)) return (b-a)/abs(b-a); //+1 if increasing, -1 if decreasing
     return 0;
@@ -59,7 +61,8 @@ std::pair<int, int> solve_puzzle(std::string filename){
 int main(){
     std::pair<int, int> res = solve_puzzle("Test_2.txt");
     std::cout << "TEST res pt 1: " << res.first << " pt 2: " << res.second << "\n";
-    res = solve_puzzle("Data_2.txt");
+    
+    res = profile_function(solve_puzzle, "Data_2.txt");
     std::cout << "Puzzle res pt 1: " << res.first << " pt 2: " << res.second << "\n";
 
     return 0;

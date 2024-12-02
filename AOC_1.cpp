@@ -56,7 +56,7 @@ int main(){
     assert(res.second == 31);
     std::cout << "TEST res pt 1: " << res.first << " pt 2: " << res.second << "\n";
     
-    res = solve_puzzle("Data_1.txt");
+    res = profile_function(solve_puzzle, "Data_1.txt");
     std::cout << "Puzzle res pt 1: " << res.first << " pt 2: " << res.second << "\n";
 
     return 0;

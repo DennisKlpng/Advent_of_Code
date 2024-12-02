@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cassert>
 #include <ranges>
+#include <chrono>
 
 std::vector<std::string> read_file_as_lines(const std::string filename){
     std::vector<std::string> lines;
@@ -31,6 +32,16 @@ std::vector<int> split_string_int(const std::string input){
     return output;
 }
 
+template<typename T, typename... Ts>
+auto profile_function(T& function, Ts&... args){
+    auto start = std::chrono::high_resolution_clock::now();
+    auto ret = function(std::forward<Ts>(args)...);
+    auto stop = std::chrono::high_resolution_clock::now();
+    std::cout << "exec time: " << std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count() << " ms\n";
+    return ret;
+}
+
+// printing utils
 void print(){
     std::cout << std::endl;
     return;
