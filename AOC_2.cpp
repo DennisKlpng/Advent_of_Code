@@ -23,6 +23,19 @@ bool check_if_safe(std::vector<int> nums){
     return false;
 }
 
+bool check_if_safe_notfancy(std::vector<int> nums){
+    int fst;
+    for(int n = 0; n < nums.size() - 1; n++){
+        int order = check_order(nums[n], nums[n+1]);
+        if (0==n) {
+            if(0 == order ) return false;
+            fst = order;
+        }
+        if (order != fst) return false;
+    }
+    return true;
+}
+
 std::pair<int, int> solve_puzzle(std::string filename){
     std::pair<int, int> res{0, 0};
 
