@@ -52,6 +52,7 @@ template <typename T,
     typename std::enable_if<
         std::is_integral<T>::value || 
         std::is_floating_point<T>::value ||
+        std::is_same<T, const char*>::value ||
         std::is_same<T, std::string>::value, bool>::type = true, 
     typename... Ts>
 void print(T arg, Ts... arg2){
