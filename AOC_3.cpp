@@ -2,11 +2,12 @@
 #include <numeric>
 #include <regex>
 
+static const std::regex reg("mul\\(([0-9]{1,3}),([0-9]{1,3})\\)");
+
 int get_muls(std::string& str){
     int ret = 0;
     std::string::const_iterator curr_start(str.cbegin());
     std::smatch match;
-    const std::regex reg("mul\\(([0-9]{1,3}),([0-9]{1,3})\\)");
     while(std::regex_search(curr_start, str.cend(), match, reg)){
         ret += std::stoi(match[1].str()) * std::stoi(match[2].str());
         curr_start = match.suffix().first;
