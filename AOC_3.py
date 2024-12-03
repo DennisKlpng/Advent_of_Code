@@ -1,7 +1,7 @@
 import utils
 import re
 
-reg_mul = re.compile("mul\(([0-9]{1,3}),([0-9]{1,3})\)", re.DOTALL)
+reg_mul = re.compile("mul\(([0-9]{1,3}),([0-9]{1,3})\)")
 reg_cond = re.compile("don't\(\).*?(do\(\)|$)", re.DOTALL)
 
 
