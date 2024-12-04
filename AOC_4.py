@@ -2,45 +2,36 @@ import utils
 import numpy as np
 from itertools import product, combinations
 
+
 def solve_puzzle(filename):
-    input_data_array = np.array([[char for char in line] for line in utils.read_file_as_lines(filename)])
-    s_loc = np.argwhere(input_data_array == "S")
+    input_data_array = np.array([[ord(char) for char in line] for line in utils.read_file_as_lines(filename)])
+    ord_m, ord_a, ord_x, ord_s = ord("M"), ord("A"), ord("X"), ord("S")
+    s_loc = np.argwhere(input_data_array == ord_s)
+    a_loc = set()  # using set to prevent adding A-coordinates twice that are part of an X-MAS
     neighbour_vecs = list(product([0, 1, -1], [0, 1, -1]))
     occ_xmas, occ_x_mas = 0, 0
     x_max, y_max = np.shape(input_data_array)
-    mas_pos = []
     for pos in s_loc:
         for vec in neighbour_vecs:
-            if not (0 <= pos[0] - 2*vec[0] < x_max and 0 <= pos[1] - 2*vec[1] < y_max):
+            if not (0 <= pos[0] - 2 * vec[0] < x_max and 0 <= pos[1] - 2 * vec[1] < y_max):
                 continue  # m would be out of bounds
-            if not input_data_array[pos[0] - vec[0]][pos[1] - vec[1]] == "A":
+            if not input_data_array[(xa := pos[0] - vec[0])][(ya := pos[1] - vec[1])] == ord_a:
                 continue
-            if not input_data_array[pos[0] - 2*vec[0]][pos[1] - 2*vec[1]] == "M":
+            if not input_data_array[(xm := pos[0] - 2 * vec[0])][(ym := pos[1] - 2 * vec[1])] == ord_m:
                 continue
-            new_mas = [[pos[0] - 2 * vec[0], pos[1] - 2 * vec[1]],  # M
-                       [pos[0] - vec[0], pos[1] - vec[1]],  # A
-                       [pos[0], pos[1]]]  # S
-            mas_pos.append(new_mas)
-            if not (0 <= pos[0] - 3*vec[0] < x_max and 0 <= pos[1] - 3*vec[1] < y_max):
+            if (xa != xm) and (ya != ym):  # only consider cases where A and M are on a diagonal (=> S as well)
+                a_loc.add((xa, ya))
+            if not (0 <= pos[0] - 3 * vec[0] < x_max and 0 <= pos[1] - 3 * vec[1] < y_max):
                 continue  # x would be out of bounds
-            if not input_data_array[pos[0] - 3*vec[0]][pos[1] - 3*vec[1]] == "X":
+            if not input_data_array[pos[0] - 3 * vec[0]][pos[1] - 3 * vec[1]] == ord_x:
                 continue
             occ_xmas += 1
 
-    # remove all MAS that are not diagonal (since either x or y coordinate of M and A are identical)
-    mas_pos = [x for x in mas_pos if not (x[0][0] == x[1][0] or x[0][1] == x[1][1])]
-    combines = list(combinations(mas_pos, 2))
-    mas_array = np.full(np.shape(input_data_array), ".")
-    for comb in combines:
-        if comb[0][1] == comb[1][1]:
+    # idea for pt2: just check that both diagonals involving an "A" are "M" + "S"
+    for a in a_loc:
+        if input_data_array[a[0] - 1][a[1] + 1] + input_data_array[a[0] + 1][a[1] - 1] == (ord_m + ord_s) and \
+                input_data_array[a[0] - 1][a[1] - 1] + input_data_array[a[0] + 1][a[1] + 1] == (ord_m + ord_s):
             occ_x_mas += 1
-    #         mas_array[comb[0][0][0]][comb[0][0][1]] = "M"
-    #         mas_array[comb[1][0][0]][comb[1][0][1]] = "M"
-    #         mas_array[comb[0][1][0]][comb[0][1][1]] = "A"
-    #         mas_array[comb[1][1][0]][comb[1][1][1]] = "A"
-    #         mas_array[comb[0][2][0]][comb[0][2][1]] = "S"
-    #         mas_array[comb[1][2][0]][comb[1][2][1]] = "S"
-    # print(mas_array)
 
     return occ_xmas, occ_x_mas
 
