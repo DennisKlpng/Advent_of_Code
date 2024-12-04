@@ -1,4 +1,7 @@
 import re
+import time
+from functools import wraps
+
 
 def split_fileinput_by_emptylines(filename):  # empty line separated blocks
     with open(filename, "r") as f:
@@ -39,6 +42,16 @@ def get_diagneighbours(coord):
 
 def get_neighbours_3d(p):
     return [(p[0] + dx, p[1] + dy, p[2] + dz,) for (dx, dy, dz) in [(1,0,0),(-1,0,0),(0,1,0),(0,-1,0),(0,0,1),(0,0,-1)]]
+
+
+def time_tracker(func):
+    def track_time(*args, **kwargs):
+        start_time = time.time()
+        ret = func(*args, **kwargs)
+        print(f"exec took {time.time() - start_time:.2f} seconds")
+        return ret
+
+    return track_time
 
 
 class GenericTree(object):
