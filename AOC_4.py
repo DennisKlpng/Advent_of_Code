@@ -5,6 +5,7 @@ from itertools import product, combinations
 
 def solve_puzzle(filename):
     input_data_array = np.array([[ord(char) for char in line] for line in utils.read_file_as_lines(filename)])
+    input_data_array = np.pad(input_data_array, 3)
     ord_m, ord_a, ord_x, ord_s = ord("M"), ord("A"), ord("X"), ord("S")
     s_loc = np.argwhere(input_data_array == ord_s)
     a_loc = set()  # using set to prevent adding A-coordinates twice that are part of an X-MAS
@@ -13,16 +14,12 @@ def solve_puzzle(filename):
     x_max, y_max = np.shape(input_data_array)
     for pos in s_loc:
         for vec in neighbour_vecs:
-            if not (0 <= pos[0] - 2 * vec[0] < x_max and 0 <= pos[1] - 2 * vec[1] < y_max):
-                continue  # m would be out of bounds
             if not input_data_array[(xa := pos[0] - vec[0])][(ya := pos[1] - vec[1])] == ord_a:
                 continue
             if not input_data_array[(xm := pos[0] - 2 * vec[0])][(ym := pos[1] - 2 * vec[1])] == ord_m:
                 continue
             if (xa != xm) and (ya != ym):  # only consider cases where A and M are on a diagonal (=> S as well)
                 a_loc.add((xa, ya))
-            if not (0 <= pos[0] - 3 * vec[0] < x_max and 0 <= pos[1] - 3 * vec[1] < y_max):
-                continue  # x would be out of bounds
             if not input_data_array[pos[0] - 3 * vec[0]][pos[1] - 3 * vec[1]] == ord_x:
                 continue
             occ_xmas += 1
