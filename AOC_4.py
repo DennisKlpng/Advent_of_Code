@@ -6,9 +6,10 @@ from itertools import product, combinations
 @utils.time_tracker
 def solve_puzzle(filename):
     input_data_array = np.array([[ord(char) for char in line] for line in utils.read_file_as_lines(filename)])
-    input_data_array = np.pad(input_data_array, 3)
     ord_m, ord_a, ord_x, ord_s = ord("M"), ord("A"), ord("X"), ord("S")
     s_loc = np.argwhere(input_data_array == ord_s)
+    s_loc = [[d + 3 for d in loc] for loc in s_loc]
+    input_data_array = np.pad(input_data_array, 3)
     a_loc = set()  # using set to prevent adding A-coordinates twice that are part of an X-MAS
     neighbour_vecs = list(product([0, 1, -1], [0, 1, -1]))
     occ_xmas, occ_x_mas = 0, 0
