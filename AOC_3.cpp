@@ -28,11 +28,11 @@ std::pair<int, int> solve_puzzle(std::string filename){
 }
 
 int main(){
-    std::pair<int, int> res = solve_puzzle("Test_3.txt");
+    std::pair<int, int> res = solve_puzzle("inputs/Test_3.txt");
     print("Test res pt 1: ", res.first, " pt 2: ", res.second);
 
     double time_spent;
-    res = profile_function(solve_puzzle, time_spent, "Data_3.txt");
+    res = profile_function(solve_puzzle, time_spent, "inputs/Data_3.txt");
     print("Puzzle res pt 1: ", res.first, " pt 2: ", res.second, " puzzle calculation took: ", time_spent, " ms \n");
 
     return 0;

@@ -59,11 +59,11 @@ std::pair<int, int> solve_puzzle(std::string filename){
 }
 
 int main(){
-    std::pair<int, int> res = solve_puzzle("Test_2.txt");
+    std::pair<int, int> res = solve_puzzle("inputs/Test_2.txt");
     std::cout << "TEST res pt 1: " << res.first << " pt 2: " << res.second << "\n";
     
     double time_spent;
-    res = profile_function(solve_puzzle, time_spent, "Data_2.txt");
+    res = profile_function(solve_puzzle, time_spent, "inputs/Data_2.txt");
     print("Puzzle res pt 1: ", res.first, " pt 2: ", res.second, " puzzle calculation took: ", time_spent, " ms \n");
 
     return 0;

@@ -14,7 +14,7 @@ def solve_puzzle(filename):
 
 
 if __name__ == '__main__':
-    p1, p2 = solve_puzzle("Test_3.txt")
+    p1, p2 = solve_puzzle("inputs/Test_3.txt")
     print(p1, p2)
-    p1, p2 = solve_puzzle("Data_3.txt")
+    p1, p2 = solve_puzzle("inputs/Data_3.txt")
     print(p1, p2)

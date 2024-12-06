@@ -20,6 +20,6 @@ def solve_puzzle(filename):
 
 
 if __name__ == '__main__':
-    print(solve_puzzle("Test_1.txt"))
-    print(solve_puzzle("Data_1.txt"))
+    print(solve_puzzle("inputs/Test_1.txt"))
+    print(solve_puzzle("inputs/Data_1.txt"))
 
