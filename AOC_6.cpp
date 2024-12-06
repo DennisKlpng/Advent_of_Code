@@ -90,14 +90,18 @@ std::pair<int, int> solve_puzzle(std::string filename){
 
     //part 2 semi brute-force: try to place an obstacle on every position (besides the start) that the guard visited in 1
     std::mutex num_mutex;
+    std::uint16_t last_pos = hash_pos(start_pos.x, start_pos.y);
     std::for_each(std::execution::par, pos_visited_pt1.begin(), pos_visited_pt1.end(),[&](auto pos_pt_1){
         guard_pos pos_loop = start_pos;
         bool loop = false;
-        std::vector<uint16_t> arr_new = arr;
-        arr_new[pos_pt_1] = 1;
+        num_mutex.lock();
+        arr[pos_pt_1] = 1;
+        arr[last_pos] = 0;
+        last_pos = pos_pt_1;
+        num_mutex.unlock();
 
         std::vector<std::array<bool, 4>> visited_loop = visited;
-        while(guard_move(pos_loop, arr_new, loop, visited_loop, x_max, y_max)){
+        while(guard_move(pos_loop, arr, loop, visited_loop, x_max, y_max)){
             if(loop){
                 num_mutex.lock();
                 res.second += 1;
