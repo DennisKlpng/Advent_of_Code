@@ -1,6 +1,4 @@
 #include "utils.hpp"
-#include <unordered_map>
-#include <set>
 
 //convention used: 
 //- cartesian coordinate system (aka "right" = positive x and "up" = positive y)
@@ -47,6 +45,8 @@ bool guard_move(guard_pos& pos, const std::vector<std::vector<int>>& arr, bool& 
         pos.y = y_n;
         int dir_hash = calc_diretion_hash(pos.dx, pos.dy);
         if(auto search = visited_pos.find(std::make_pair(x_n, y_n)); search != visited_pos.end()){
+            // print("pos: ", x_n, " , ", y_n, "\n");
+            // print(search->second);
             //pos was already visited, 
             //loop detection: loop if we visit the same position with the same orientation
             //check if hash for position already exists. If yes emplace returns false (as second of return pair)
@@ -82,22 +82,35 @@ std::pair<int, int> solve_puzzle(std::string filename){
                 pos.y = y;
                 start_pos.first = x;
                 start_pos.second = y;
+                // print("startpos: ", x, " , ", y, "\n");
                 visited.emplace(std::make_pair(x, y), std::set<int>{calc_diretion_hash(pos.dx, pos.dy)});
             }
         }
     }
 
-    guard_pos pos_update = pos;
-    bool loop = false;
-    while(guard_move(pos_update, arr, loop, visited, x_max, y_max));
-    res.first = visited.size();
+    {
+        guard_pos pos_update = pos;
+        bool loop = false;
+        while(guard_move(pos_update, arr, loop, visited, x_max, y_max));
+        res.first = visited.size();
+    }
 
     //part 2 semi brute-force: try to place an obstacle on every position (besides the start) that the guard visited in 1
-    //visited.erase(start_pos);
-    // for (auto& pos : visited){
-    //     std::vector<std::vector<int>> arr_new = arr;
-    //     arr_new[pos.first][pos.second] = 1;
-    // }
+    visited.erase(start_pos);
+    for (auto& [obst_candidate, v] : visited){
+        guard_pos pos_loop = pos;
+        bool loop = false;
+        std::vector<std::vector<int>> arr_new = arr;
+        arr_new[obst_candidate.first][obst_candidate.second] = 1;
+
+        std::unordered_map<std::pair<int, int>, std::set<int>, hash_coords> visited_loop;
+        while(guard_move(pos_loop, arr_new, loop, visited_loop, x_max, y_max)){
+            if(loop){
+                res.second += 1;
+                break;
+            }
+        };
+    }
 
     return res;
 }
@@ -105,7 +118,6 @@ std::pair<int, int> solve_puzzle(std::string filename){
 int main(){
     std::pair<int, int> res = solve_puzzle("Test_6.txt");
     print("Test res pt 1: ", res.first, " pt 2: ", res.second, "\n");
-
     double time_spent;
     res = profile_function(solve_puzzle, time_spent, "Data_6.txt");
     print("Puzzle res pt 1: ", res.first, " pt 2: ", res.second, " puzzle calculation took: ", time_spent, " ms \n");
