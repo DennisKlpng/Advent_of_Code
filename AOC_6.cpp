@@ -34,6 +34,13 @@ bool guard_move(guard_pos& pos, const std::vector<uint16_t>& arr, bool& loop_det
     uint16_t pos_hash = hash_pos(x_n, y_n);
     if(x_n < 0 || x_n > x_max || y_n < 0 || y_n > y_max) return false;
     if(arr[pos_hash] == 1){
+        int8_t dir_hash = hash_direction(pos.dx, pos.dy);
+        if(visited_pos.at(pos_hash)[dir_hash] == true){
+            loop_detected = true;
+        }
+        else{
+            visited_pos.at(pos_hash)[dir_hash] = true;
+        }
         //rotate with matrix ((0, 1), (-1, 0)) => x = y, y = - x
         int8_t tmp = pos.dx;
         pos.dx = pos.dy;
@@ -43,13 +50,6 @@ bool guard_move(guard_pos& pos, const std::vector<uint16_t>& arr, bool& loop_det
         //move
         pos.x = x_n;
         pos.y = y_n;
-        int8_t dir_hash = hash_direction(pos.dx, pos.dy);
-        if(visited_pos.at(pos_hash)[dir_hash] == true){
-            loop_detected = true;
-        }
-        else{
-            visited_pos.at(pos_hash)[dir_hash] = true;
-        }
     }
     return true;
 }
