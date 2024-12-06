@@ -5,8 +5,9 @@
 #include <sstream>
 #include <type_traits>
 #include <map>
-#include <set>
 #include <unordered_map>
+#include <set>
+#include <unordered_set>
 #include <algorithm>
 #include <cassert>
 #include <ranges>
@@ -100,6 +101,15 @@ void print(std::vector<T> arg, Ts... arg2){
 //specialization for set of trivially printable types
 template <typename T, typename... Ts>
 void print(std::set<T> arg, Ts... arg2){
+    std::cout << "set type \n";
+    for(auto const& elem: arg) {
+        std::cout << elem << " ";
+    }
+    std::cout << "\n";
+    print(arg2...);
+}
+template <typename T, typename... Ts>
+void print(std::unordered_set<T> arg, Ts... arg2){
     std::cout << "set type \n";
     for(auto const& elem: arg) {
         std::cout << elem << " ";
