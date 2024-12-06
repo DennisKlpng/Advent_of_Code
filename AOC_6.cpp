@@ -1,5 +1,5 @@
 #include "utils.hpp"
-#include <map>
+#include <unordered_map>
 #include <set>
 
 //convention used: 
@@ -13,11 +13,11 @@ typedef struct{
     int dy = 1;
 }guard_pos;
 
-// struct hash_coords {
-//     inline std::size_t operator()(const std::pair<int, int>& coords_to_hash) const {
-//         return 150*coords_to_hash.first + coords_to_hash.second;
-//     }
-// };
+struct hash_coords {
+    inline std::size_t operator()(const std::pair<int, int>& coords_to_hash) const {
+        return 150*coords_to_hash.first + coords_to_hash.second; //enough for all inputs we have to avoid collisions
+    }
+};
 
 // in pos x direction: 1, in neg y: 2, in neg x: 3, in pos y: 4
 int calc_diretion_hash(const int& x, const int& y){
@@ -30,7 +30,8 @@ int calc_diretion_hash(const int& x, const int& y){
 
 //returns true if guard is still in field, false if out of bounds
 bool guard_move(guard_pos& pos, const std::vector<std::vector<int>>& arr, bool& loop_detected,
-                std::map<std::pair<int, int>, std::set<int>>& visited_pos, const int& x_max, const int& y_max){
+                std::unordered_map<std::pair<int, int>, std::set<int>, hash_coords>& visited_pos, 
+                const int& x_max, const int& y_max){
     int x_n = pos.x + pos.dx;
     int y_n = pos.y + pos.dy;
     if(x_n < 0 || x_n > x_max || y_n < 0 || y_n > y_max) return false;
@@ -65,7 +66,8 @@ std::pair<int, int> solve_puzzle(std::string filename){
     const int x_max = vec_input[0].size() - 1;
     const int y_max = vec_input.size() -1;
     std::vector<std::vector<int>> arr(x_max + 1, std::vector<int>(y_max + 1, 0));
-    std::map<std::pair<int, int>, std::set<int>> visited;
+    std::unordered_map<std::pair<int, int>, std::set<int>, hash_coords> visited;
+    visited.reserve(150*150); //reserving to avoid rehashes
     std::pair<int, int> start_pos;
     //visited.reserve(x_max*y_max); //avoid rehashing
     guard_pos pos;
