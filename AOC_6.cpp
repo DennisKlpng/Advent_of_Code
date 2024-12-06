@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include <execution>
 
 //convention used: 
 //- cartesian coordinate system (aka "right" = positive x and "up" = positive y)
@@ -76,8 +77,8 @@ std::pair<int, int> solve_puzzle(std::string filename){
             }
         }
     }
-    std::unordered_set<int> pos_visited_pt1{hash_pos(start_pos.x, start_pos.y)};
-    pos_visited_pt1.reserve(hash_pos(x_max, y_max));
+    std::set<int> pos_visited_pt1{hash_pos(start_pos.x, start_pos.y)};
+    //pos_visited_pt1.reserve(hash_pos(x_max, y_max));
     {
         guard_pos pos_update = start_pos;
         std::vector<std::array<bool, 4>> visited_local = visited;
@@ -89,7 +90,8 @@ std::pair<int, int> solve_puzzle(std::string filename){
     }
 
     //part 2 semi brute-force: try to place an obstacle on every position (besides the start) that the guard visited in 1
-    for (auto& pos_pt_1 : pos_visited_pt1){
+    std::mutex num_mutex;
+    std::for_each(std::execution::par, pos_visited_pt1.begin(), pos_visited_pt1.end(),[&](auto pos_pt_1){
         //check if there's an obstacle in the way
         guard_pos pos_loop = start_pos;
         bool loop = false;
@@ -99,11 +101,14 @@ std::pair<int, int> solve_puzzle(std::string filename){
         std::vector<std::array<bool, 4>> visited_loop = visited;
         while(guard_move(pos_loop, arr_new, loop, visited_loop, x_max, y_max)){
             if(loop){
+                num_mutex.lock();
                 res.second += 1;
+                num_mutex.unlock();
                 break;
             }
         };
-    }
+    });
+
     return res;
 }
 
