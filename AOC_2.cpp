@@ -62,8 +62,9 @@ int main(){
     std::pair<int, int> res = solve_puzzle("Test_2.txt");
     std::cout << "TEST res pt 1: " << res.first << " pt 2: " << res.second << "\n";
     
-    res = profile_function(solve_puzzle, "Data_2.txt");
-    std::cout << "Puzzle res pt 1: " << res.first << " pt 2: " << res.second << "\n";
+    double time_spent;
+    res = profile_function(solve_puzzle, time_spent, "Data_2.txt");
+    print("Puzzle res pt 1: ", res.first, " pt 2: ", res.second, " puzzle calculation took: ", time_spent, " ms \n");
 
     return 0;
 }
