@@ -18,6 +18,7 @@ bool check_if_valid(uint64_t tgt_result, const std::deque<uint64_t>& input,
                     std::vector<std::function<uint64_t(uint64_t, uint64_t)>> ops,
                     uint64_t curr_value, uint8_t index){
     if(input.size() == index) return tgt_result == curr_value;
+    if(curr_value > tgt_result) return false;
     for(auto& func: ops){
         uint64_t new_value = func(curr_value, input[index]);
         uint8_t new_index = index + 1;
