@@ -13,6 +13,15 @@
 #include <ranges>
 #include <chrono>
 
+std::string string_replace(std::string input, const std::string to_repl, const std::string repl){
+    size_t pos_find = input.find(to_repl);
+    while(pos_find != std::string::npos){
+        input.replace(pos_find, to_repl.size(), repl);
+        pos_find = input.find(to_repl, pos_find + repl.size());
+    }
+    return input;
+}
+
 std::vector<std::string> read_file_as_lines(const std::string filename, const int reserve_inner=1000){
     std::vector<std::string> lines;
     lines.reserve(reserve_inner);
@@ -43,15 +52,25 @@ std::vector<std::vector<std::string>> read_file_as_blocks_lines(const std::strin
     return lines_vecs;
 }
 
-std::vector<int> split_string_int(const std::string input, const char sep = ' '){
-    std::vector<int> output;
+template <typename T>
+T split_string_int(const std::string input, const char sep = ' ', const std::string repl = ""){
+    T output;
     std::stringstream ss(input);
+    for(auto& c : repl){
+        auto tmp_str = ss.str();
+        tmp_str = string_replace(tmp_str, std::string(1, c), std::string(1, sep));
+        ss.str(tmp_str);
+    }
     std::string str;
     while(std::getline(ss, str, sep)){
         if(str == "") continue; //with this this should (tm) work for an arbitrary number of spaces
-        output.push_back(std::stoi(str));
+        output.push_back(std::stoll(str));
     }
     return output;
+}
+
+std::vector<int>split_string_int(const std::string input, const char sep = ' ', const std::string repl = ""){
+    return split_string_int<std::vector<int>>(input, sep, repl);
 }
 
 template<typename T, typename... Ts>
