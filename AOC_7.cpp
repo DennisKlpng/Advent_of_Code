@@ -2,6 +2,7 @@
 #include <deque>
 #include <functional>
 #include <cmath>
+#include <numeric>
 
 inline uint64_t add(uint64_t a, uint64_t b){return a + b;};
 inline uint64_t mul(uint64_t a, uint64_t b){return a * b;};
@@ -19,6 +20,7 @@ bool check_if_valid(uint64_t tgt_result, const std::deque<uint64_t>& input,
                     uint64_t curr_value, uint8_t index){
     if(input.size() == index) return tgt_result == curr_value;
     if(curr_value > tgt_result) return false;
+    if(std::accumulate(input.begin() + index, input.end(), curr_value, concat) < tgt_result) return false;
     for(auto& func: ops){
         uint64_t new_value = func(curr_value, input[index]);
         uint8_t new_index = index + 1;
