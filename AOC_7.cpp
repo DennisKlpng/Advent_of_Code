@@ -6,31 +6,8 @@
 #include <execution>
 #include <mutex>
 
-inline uint64_t add(uint64_t a, uint64_t b){return a + b;};
-inline uint64_t mul(uint64_t a, uint64_t b){return a * b;};
-inline uint64_t concat(uint64_t a, uint64_t b){
-    if (b < 10) return 10*a + b;
-    if (b < 100) return 100*a + b;
-    if (b < 1000) return 1000*a + b;
-    uint64_t val = b;
-    while(b != 0) {b /= 10; a*= 10;}
-    return val + a;
-}
-
-static const std::vector<std::function<uint64_t(uint64_t, uint64_t)>> funcs_pt1{add, mul};
-static const std::vector<std::function<uint64_t(uint64_t, uint64_t)>> funcs_pt2{add, mul, concat};
-
 bool check_if_valid(int64_t tgt_result, const std::deque<int64_t>& input,
                     int64_t curr_value, int8_t index, bool part_2 = false){
-    // if(input.size() == index) return tgt_result == curr_value;
-    // if(curr_value > tgt_result) return false;
-    // //try concatenating everything that's left, if it's smaller than the tgt => can't be reachead anymore
-    // if(std::accumulate(input.begin() + index, input.end(), curr_value, concat) < tgt_result) return false;
-    // for(auto& func: ops){
-    //     uint64_t new_value = func(curr_value, input[index]);
-    //     uint8_t new_index = index + 1;
-    //     if(check_if_valid(tgt_result, input, ops, new_value, new_index)) return true;
-    // }
     if (index < 0) return tgt_result == curr_value;
     if (curr_value < tgt_result) return false;
     int64_t num_to_check = input[index];
@@ -38,7 +15,7 @@ bool check_if_valid(int64_t tgt_result, const std::deque<int64_t>& input,
         if(check_if_valid(tgt_result, input, curr_value/num_to_check, index-1, part_2)) return true;
     }
     int8_t digits = (int)log10(num_to_check) + 1;
-    if (part_2 && ((curr_value - num_to_check) % (int64_t)pow(10, digits)) == 0){
+    if (part_2 && ((curr_value - num_to_check) % (int64_t)pow(10, digits)) == 0){ //concat
         if(check_if_valid(tgt_result, input, curr_value/pow(10, digits), index-1, part_2)) return true;
     }
     if(check_if_valid(tgt_result, input, curr_value-num_to_check, index-1, part_2)) return true;
