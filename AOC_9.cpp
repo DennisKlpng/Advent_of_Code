@@ -13,7 +13,7 @@ uint64_t solve_part(std::vector<uint8_t> input_queue,
         back_size_remaining = input_queue.back();
         int8_t space_used = back_size_remaining;
         input_queue.pop_back();
-        uint64_t min_index = *std::max_element(vec_startindex.begin(), vec_startindex.end());
+        uint64_t min_index = std::numeric_limits<uint64_t>::max();
         int8_t size_index = 0;
         //search all freespaces for the one with the minimal pos index (aka nearest to front) where stuff fits
         for(auto &[k, v]: freespace_queue){
