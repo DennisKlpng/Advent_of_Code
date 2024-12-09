@@ -48,14 +48,13 @@ uint64_t solve_part(std::vector<uint8_t> input_queue,
         else{
             if(back_size_remaining < 0){
                 //we used LESS space than was available in that space => store the remaining space
-                if(freespace_queue.find(abs(back_size_remaining)) != freespace_queue.end()){
-                    freespace_queue.at(abs(back_size_remaining)).push_front(min_index + space_used);
+                if(freespace_queue.find(-back_size_remaining) != freespace_queue.end()){
+                    auto& deq = freespace_queue[-back_size_remaining];
+                    deq.insert(std::upper_bound(deq.begin(),deq.end(), min_index + space_used), min_index + space_used);
                 }
                 else{
-                    freespace_queue.emplace(abs(back_size_remaining), std::deque<std::uint64_t>{min_index + space_used});
+                    freespace_queue.emplace(-back_size_remaining, std::deque<std::uint64_t>{min_index + space_used});
                 }
-                //issue: it's not guaranteed that the indices are now in order in the new size! => sort
-                std::sort(freespace_queue[abs(back_size_remaining)].begin(), freespace_queue[abs(back_size_remaining)].end());
             }
             //move to next file from the back
             back_index_file--;
