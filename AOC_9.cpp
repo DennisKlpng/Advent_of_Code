@@ -13,10 +13,11 @@ uint64_t solve_part(std::vector<uint8_t> input_queue,
         back_size_remaining = input_queue.back();
         int8_t space_used = back_size_remaining;
         input_queue.pop_back();
-        uint64_t min_index = std::numeric_limits<uint64_t>::max();
+        uint64_t min_index = *std::max_element(vec_startindex.begin(), vec_startindex.end());
         int8_t size_index = 0;
         //search all freespaces for the one with the minimal pos index (aka nearest to front) where stuff fits
         for(auto &[k, v]: freespace_queue){
+            if(v.empty()) continue;
             if(pt2 && k < back_size_remaining) continue;
             if(v.front() < min_index){
                 min_index = v.front();
@@ -102,9 +103,9 @@ std::pair<uint64_t, uint64_t> solve_puzzle(std::string filename){
 
 int main(){
     std::pair<uint64_t, uint64_t> res = solve_puzzle("inputs/Test_9.txt");
-    print("Test res pt 1: ", res.first, " pt 2: ", res.second, "\n"); //1928
+    print("Test res pt 1: ", res.first, " pt 2: ", res.second, "\n");
     double time_spent;
-    res = profile_function(solve_puzzle, time_spent, "inputs/Data_9.txt"); //6519155389266
+    res = profile_function(solve_puzzle, time_spent, "inputs/Data9.txt");
     print("Puzzle res pt 1: ", res.first, " pt 2: ", res.second, " puzzle calculation took: ", time_spent, " ms \n");
 
     return 0;
