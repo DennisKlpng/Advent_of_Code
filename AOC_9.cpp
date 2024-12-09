@@ -48,9 +48,9 @@ uint64_t solve_part(std::vector<uint8_t> input_queue,
         else{
             if(back_size_remaining < 0){
                 //we used LESS space than was available in that space => store the remaining space
-                if(freespace_queue.find(-back_size_remaining) != freespace_queue.end()){
+                if(freespace_queue.contains(-back_size_remaining)){
                     auto& deq = freespace_queue[-back_size_remaining];
-                    deq.insert(std::upper_bound(deq.begin(),deq.end(), min_index + space_used), min_index + space_used);
+                    deq.insert(std::ranges::upper_bound(deq, min_index + space_used), min_index + space_used);
                 }
                 else{
                     freespace_queue.emplace(-back_size_remaining, std::deque<std::uint64_t>{min_index + space_used});
@@ -67,7 +67,7 @@ uint64_t solve_part(std::vector<uint8_t> input_queue,
     return res;
 }
 
-std::pair<uint64_t, uint64_t> solve_puzzle(std::string filename){
+std::pair<uint64_t, uint64_t> solve_puzzle(std::string const& filename){
     std::pair<uint64_t, uint64_t> res{0, 0};
     std::string input = read_file_as_lines(filename)[0];
     std::vector<uint8_t> input_queue;
@@ -77,8 +77,8 @@ std::pair<uint64_t, uint64_t> solve_puzzle(std::string filename){
     uint64_t front_index_file = 0;
 
     //filling queues => precalc
-    for(auto& c: input) {
-        uint8_t num = std::stoi(std::string(1, c));
+    for(auto const& c: input) {
+        auto num = static_cast<uint8_t>(std::stoi(std::string(1, c)));
         if(next_is_file){
             input_queue.push_back(num);
             vec_startindex.push_back(front_index_file);
@@ -104,7 +104,7 @@ int main(){
     std::pair<uint64_t, uint64_t> res = solve_puzzle("inputs/Test_9.txt");
     print("Test res pt 1: ", res.first, " pt 2: ", res.second, "\n");
     double time_spent;
-    res = profile_function(solve_puzzle, time_spent, "inputs/Data9.txt");
+    res = profile_function(solve_puzzle, time_spent, "inputs/Data_9.txt");
     print("Puzzle res pt 1: ", res.first, " pt 2: ", res.second, " puzzle calculation took: ", time_spent, " ms \n");
 
     return 0;
