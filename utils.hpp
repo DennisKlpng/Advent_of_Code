@@ -12,6 +12,7 @@
 #include <cassert>
 #include <ranges>
 #include <chrono>
+#include <regex>
 
 std::string string_replace(std::string input, const std::string to_repl, const std::string repl){
     size_t pos_find = input.find(to_repl);
@@ -71,6 +72,19 @@ T split_string_int(const std::string input, const char sep = ' ', const std::str
 
 std::vector<int>split_string_int(const std::string input, const char sep = ' ', const std::string repl = ""){
     return split_string_int<std::vector<int>>(input, sep, repl);
+}
+
+static const std::regex reg_ints("[0-9]+");
+
+std::vector<int64_t>get_ints_from_string(const std::string input){
+    std::vector<int64_t> vals;
+    std::smatch match;
+    std::string::const_iterator curr_start(input.cbegin());
+    while(std::regex_search(curr_start, input.cend(), match, reg_ints)){
+        vals.push_back(std::stoll(match.str()));
+        curr_start = match.suffix().first;
+    }
+    return vals;
 }
 
 template<typename T, typename... Ts>
