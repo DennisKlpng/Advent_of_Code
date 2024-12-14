@@ -13,6 +13,12 @@ inline int64_t get_quadrant(std::pair<int64_t, int64_t> pos){
     return res;
 }
 
+void visualize_state(std::vector<std::string> curr_state){
+    for(auto& line: curr_state){
+        print(line, "\n");
+    }
+}
+
 struct pt{
     pt(int64_t x_0, int64_t y_0, int64_t v_x, int64_t v_y): x_0(x_0), y_0(y_0), v_x(v_x), v_y(v_y){};
 
@@ -49,17 +55,29 @@ std::pair<uint64_t, uint64_t> solve_puzzle(std::string filename, bool is_test = 
         pt robot(coords[0], coords[1], coords[2], coords[3]);
         vec_robots.push_back(robot);
     }
-    std::vector<int64_t> quadrant_robots{0, 0, 0, 0, 0};
-    int64_t num_steps = 100;
-    std::for_each(vec_robots.begin(), vec_robots.end(), [&](pt& robot){
-        auto pos = robot.get_pos(num_steps);
-        quadrant_robots[get_quadrant(pos)] += 1;
-    });
-
-    res.first = std::accumulate(quadrant_robots.begin(), quadrant_robots.end() - 1, 1, std::multiplies<int64_t>());
 
     //part 2, what the
-
+    int64_t min_safety = std::numeric_limits<int64_t>::max();
+    std::string emptry_line(width, ' ');
+    std::vector<std::string> visualizer(height, emptry_line);
+    for(int64_t i = 0; i <= width*height; i++){
+        auto vis_local = visualizer;
+        std::vector<int64_t> quadrant_robots{0, 0, 0, 0, 0};
+        std::for_each(vec_robots.begin(), vec_robots.end(), [&](pt& robot){
+            auto pos = robot.get_pos(i);
+            quadrant_robots[get_quadrant(pos)] += 1;
+            vis_local[pos.second][pos.first] = 'X';
+        });
+        int64_t current_safety = std::accumulate(quadrant_robots.begin(), quadrant_robots.end() - 1, 1, std::multiplies<int64_t>());
+        if(i == 100) res.first = current_safety;
+        if(current_safety < min_safety && i > 100) {
+            min_safety = current_safety;
+            res.second = i;
+            //optional visualization
+            // visualize_state(vis_local);
+            // print(i, " ##############################################################################################################", "\n");
+        }
+    }
 
     return res;
 }
