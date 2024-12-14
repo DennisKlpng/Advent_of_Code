@@ -74,7 +74,7 @@ std::vector<int>split_string_int(const std::string input, const char sep = ' ', 
     return split_string_int<std::vector<int>>(input, sep, repl);
 }
 
-static const std::regex reg_ints("[0-9]+");
+static const std::regex reg_ints("[0-9\\-]+");
 
 std::vector<int64_t>get_ints_from_string(const std::string input){
     std::vector<int64_t> vals;
