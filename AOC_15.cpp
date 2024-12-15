@@ -3,12 +3,6 @@
 static int64_t max_x = 0;
 static int64_t max_y = 0;
 
-//x: right, y: down
-typedef std::pair<int64_t, int64_t> pt;
-constexpr pt operator+(const pt& pt1, const pt& pt2){
-    return pt(pt1.first + pt2.first, pt1.second + pt2.second);
-}
-
 typedef enum mp{
     FREE = 0,
     WALL = 1,
@@ -24,6 +18,14 @@ typedef enum move{
     DOWN = 3,
     LEFT = 4
 }move;
+
+//x: right, y: down
+typedef std::pair<int64_t, int64_t> pt;
+typedef std::pair<pt, mp> pt_with_type;
+
+constexpr pt operator+(const pt& pt1, const pt& pt2){
+    return pt(pt1.first + pt2.first, pt1.second + pt2.second);
+}
 
 pt get_move_vec(const move mv){
     if(mv == UP) return pt(0, -1);
@@ -68,27 +70,26 @@ bool try_move_box(const pt& pos, const move mv, std::map<pt, mp>& curr_map){
     return true;
 }
 
-bool try_move_large_box(const pt& pos, const move mv, std::map<pt, mp>& curr_map, bool ignore_nb=false){
-    auto tmp_map = curr_map;
+bool try_move_large_box(const pt& pos, const move mv, std::map<pt, mp>& curr_map, std::set<pt_with_type>& move_pos, bool ignore_nb=false){
+    // auto tmp_map = curr_map;
     auto curr_type = curr_map[pos];
     auto tgt_pos = pos + get_move_vec(mv);
     if(curr_map[tgt_pos] == mp::WALL) return false;
     if(curr_map[tgt_pos] == mp::BOX_LEFT || curr_map[tgt_pos] == mp::BOX_RIGHT){
-        if(!try_move_large_box(tgt_pos, mv, tmp_map)) return false;
+        if(!try_move_large_box(tgt_pos, mv, curr_map, move_pos)) return false;
     }
     if((mv == move::UP || mv == move::DOWN) && !ignore_nb){ //also consider the other part of the box to push if we didn't already
         if(curr_type == mp::BOX_LEFT){ //also try to push the BOX_RIGHT just right of the box part we want to push
-            if(!try_move_large_box(pos + pt(1, 0), mv, tmp_map, true)) return false;
+            if(!try_move_large_box(pos + pt(1, 0), mv, curr_map, move_pos, true)) return false;
+            move_pos.emplace(pos + pt(1, 0), mp::BOX_RIGHT);
         }
         else if(curr_type == mp::BOX_RIGHT){ //also try to push the BOX_LEFT just left of the box part we want to push
-            if(!try_move_large_box(pos + pt(-1, 0), mv, tmp_map, true)) return false;
+            if(!try_move_large_box(pos + pt(-1, 0), mv, curr_map, move_pos, true)) return false;
+            move_pos.emplace(pos + pt(-1, 0), mp::BOX_LEFT);
         }
     }
 
-    curr_map = tmp_map; //only update map if push was successful, otherwise we destroy boxes
-
-    curr_map[tgt_pos] = curr_type;
-    curr_map[pos] = mp::FREE;
+    move_pos.emplace(pos, curr_type);
     return true;
 }
 
@@ -171,12 +172,22 @@ std::pair<uint64_t, uint64_t> solve_puzzle(std::string filename){
         pt new_pos = robot_pos_2 + get_move_vec(mv);
         if(warehouse_map_2[new_pos] == mp::WALL) continue;
         if(warehouse_map_2[new_pos] == mp::BOX_LEFT || warehouse_map_2[new_pos] == mp::BOX_RIGHT){
-            if(!try_move_large_box(new_pos, mv, warehouse_map_2)) continue;
+            std::set<pt_with_type> move_pos;
+            if(!try_move_large_box(new_pos, mv, warehouse_map_2, move_pos)) continue;
+            for(auto& pos: move_pos){ //firt pass: delete old positions
+                warehouse_map_2[pos.first] = mp::FREE;
+            }
+            for(auto& pos: move_pos){ //second pass: add new positions
+                auto tgt_pos = pos.first + get_move_vec(mv);
+                warehouse_map_2[tgt_pos] = pos.second;
+            }
         }
         warehouse_map_2[robot_pos_2] = mp::FREE;
         warehouse_map_2[new_pos] = mp::ROB;
+
         robot_pos_2 = new_pos;
     }
+
     for(const auto& [k, v] : warehouse_map_2){
         if(v == mp::BOX_LEFT){
             res.second += k.first + 100*k.second;
@@ -188,10 +199,11 @@ std::pair<uint64_t, uint64_t> solve_puzzle(std::string filename){
 
 int main(){
     std::pair<uint64_t, uint64_t> res = solve_puzzle("inputs/Test_15.txt");
-    print("Test res pt 1:", res.first, "pt 2:", res.second);  //pt1 : 10092 pt 2: 9021
+    // std::pair<uint64_t, uint64_t> res = solve_puzzle("inputs/Test_15_easy2.txt");
+    print("Test res pt 1:", res.first, "pt 2:", res.second);
     double time_spent;
     res = profile_function(solve_puzzle, time_spent, "inputs/Data_15.txt");
-    print("Puzzle res pt 1:", res.first, "pt 2:", res.second, "puzzle calculation took:", time_spent, "ms"); //pt 1: 1383666 pt 2: 1412866
+    print("Puzzle res pt 1:", res.first, "pt 2:", res.second, "puzzle calculation took:", time_spent, "ms");
 
     return 0;
 }
