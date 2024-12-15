@@ -98,6 +98,7 @@ auto profile_function(T& function, double& time, Ts&... args){
 
 // printing utils
 void print(){
+    std::cout << "\n";
     std::flush(std::cout);
     return;
 }
@@ -112,62 +113,60 @@ template <typename T,
         std::is_same<T, std::string>::value, bool>::type = true, 
     typename... Ts>
 void print(T arg, Ts... arg2){
-    std::cout << arg << "";
+    std::cout << arg << " ";
     print(arg2...);
 }
 
 void print(bool in){
-    (in) ? std::cout << "true" : std::cout << "false";
+    (in) ? std::cout << "true" : std::cout << "false\n";
 }
 
 //specialization for vector of trivially printable types
 template <typename T, typename... Ts>
 void print(std::vector<T> arg, Ts... arg2){
-    std::cout << "vector type \n";
+    std::cout << "vec: [";
     for(auto const& elem: arg) {
-        std::cout << elem << " ";
+        std::cout << " " << elem << " ";
     }
-    std::cout << "\n";
+    std::cout << "]";
     print(arg2...);
 }
 
 //specialization for set of trivially printable types
 template <typename T, typename... Ts>
 void print(std::set<T> arg, Ts... arg2){
-    std::cout << "set type \n";
+    std::cout << "set: [";
     for(auto const& elem: arg) {
-        std::cout << elem << " ";
+        std::cout << " " << elem << " ";
     }
-    std::cout << "\n";
+    std::cout << "]";
     print(arg2...);
 }
 template <typename T, typename... Ts>
 void print(std::unordered_set<T> arg, Ts... arg2){
-    std::cout << "set type \n";
+    std::cout << "vec: [";
     for(auto const& elem: arg) {
-        std::cout << elem << " ";
+        std::cout << " " << elem << " ";
     }
-    std::cout << "\n";
+    std::cout << "]";
     print(arg2...);
 }
 
 //specialization of map / unordered map of trivially printable types
 template <typename T, typename U, typename... Ts>
 void print(std::map<T, U> arg, Ts... arg2){
-    std::cout << "map type, printing key, value in each line: \n";
+    std::cout << "map:";
     for (const auto& n : arg){
-        print(n.first, n.second);
+        std::cout << " { " << n.first << ", " << n.second << "} ";
     }
-    std::cout << "end of map \n" << std::endl;
     print(arg2...);
 }
 
 template <typename T, typename U, typename... Ts>
 void print(std::unordered_map<T, U> arg, Ts... arg2){
-    std::cout << "map type, printing key, value in each line: \n";
+    std::cout << "map:";
     for (const auto& n : arg){
-        print(n.first, n.second);
+        std::cout << " { " << n.first << ", " << n.second << "} ";
     }
-    std::cout << "end of map \n" << std::endl;
     print(arg2...);
 }

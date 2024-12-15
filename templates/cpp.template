@@ -9,10 +9,10 @@ std::pair<uint64_t, uint64_t> solve_puzzle(std::string filename){
 
 int main(){
     std::pair<uint64_t, uint64_t> res = solve_puzzle("{{test_file}}");
-    print("Test res pt 1: ", res.first, " pt 2: ", res.second, "\n");
+    print("Test res pt 1:", res.first, "pt 2:", res.second);
     double time_spent;
     res = profile_function(solve_puzzle, time_spent, "{{data_file}}");
-    print("Puzzle res pt 1: ", res.first, " pt 2: ", res.second, " puzzle calculation took: ", time_spent, " ms \n");
+    print("Puzzle res pt 1:", res.first, "pt 2:", res.second, "puzzle calculation took:", time_spent, "ms");
 
     return 0;
 }
