@@ -31,3 +31,6 @@ if __name__ == '__main__':
     # delete executables (from cpp-compiling)
     for item in [x for x in os.listdir(".") if x.endswith(".exe")]:
         os.remove(item)
+    
+    # delete steps-folder from visu gen
+    shutil.rmtree(os.getcwd() + "/steps")

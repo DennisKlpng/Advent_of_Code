@@ -142,3 +142,6 @@ dmypy.json
 
 #Linter
 compile_commands.json
+
+#vis
+.gif

@@ -1,23 +1,14 @@
 #include "utils.hpp"
+#include <fstream>
+#include <filesystem>
 
 static int64_t max_x = 0;
 static int64_t max_y = 0;
 
-typedef enum mp{
-    FREE = 0,
-    WALL = 1,
-    BOX = 2,
-    ROB = 3,
-    BOX_LEFT = 4,
-    BOX_RIGHT = 5
-} mp;
+const static bool save_steps = true;
 
-typedef enum move{
-    UP = 1,
-    RIGHT = 2,
-    DOWN = 3,
-    LEFT = 4
-}move;
+typedef enum mp{FREE = 0, WALL = 1, BOX = 2, ROB = 3, BOX_LEFT = 4, BOX_RIGHT = 5} mp;
+typedef enum move{UP = 1, RIGHT = 2, DOWN = 3, LEFT = 4}move;
 
 //x: right, y: down
 typedef std::pair<int64_t, int64_t> pt;
@@ -27,7 +18,7 @@ constexpr pt operator+(const pt& pt1, const pt& pt2){
     return pt(pt1.first + pt2.first, pt1.second + pt2.second);
 }
 
-pt get_move_vec(const move mv){
+constexpr pt get_move_vec(const move mv){
     if(mv == UP) return pt(0, -1);
     if(mv == RIGHT) return pt(1, 0);
     if(mv == DOWN) return pt(0, 1);
@@ -35,7 +26,7 @@ pt get_move_vec(const move mv){
     return pt(0, 0);
 }
 
-inline char get_elem(const mp obj){
+constexpr char get_elem(const mp obj){
     if(obj == mp::FREE) return '.';
     if(obj == mp::BOX) return 'O';
     if(obj == mp::WALL) return '#';
@@ -57,6 +48,21 @@ void visualize_map(const std::map<pt, mp>& curr_map, const bool pt2=false){
         print(line);
     }
     print("");
+}
+
+void save_map(const std::map<pt, mp>& curr_map, const int& step){
+    std::ofstream file;
+    std::string filename = "./steps/step_" + std::to_string(step) + ".txt";
+    file.open(filename);
+    std::string empt_line(2*(max_x + 1), ' ');
+    std::vector<std::string> vec_lines(max_y + 1, empt_line);
+    for(const auto& [k, v]: curr_map){
+        vec_lines[k.second][k.first] = get_elem(v);
+    }
+    for(const auto& line: vec_lines){
+        file << line << "\n";
+    }
+    file.close();
 }
 
 bool try_move_box(const pt& pos, const move mv, std::map<pt, mp>& curr_map){
@@ -168,6 +174,11 @@ std::pair<uint64_t, uint64_t> solve_puzzle(std::string filename){
     }
 
     //pt2
+    int step = 0;
+    if(save_steps){
+        std::filesystem::remove_all("./steps");
+        std::filesystem::create_directory("./steps");
+    }
     for(const move& mv : moves){
         pt new_pos = robot_pos_2 + get_move_vec(mv);
         if(warehouse_map_2[new_pos] == mp::WALL) continue;
@@ -184,6 +195,11 @@ std::pair<uint64_t, uint64_t> solve_puzzle(std::string filename){
         }
         warehouse_map_2[robot_pos_2] = mp::FREE;
         warehouse_map_2[new_pos] = mp::ROB;
+
+        if(save_steps){
+            step++;
+            save_map(warehouse_map_2, step);
+        }
 
         robot_pos_2 = new_pos;
     }
@@ -202,7 +218,7 @@ int main(){
     // std::pair<uint64_t, uint64_t> res = solve_puzzle("inputs/Test_15_easy2.txt");
     print("Test res pt 1:", res.first, "pt 2:", res.second);
     double time_spent;
-    res = profile_function(solve_puzzle, time_spent, "inputs/Data_15.txt");
+    // res = profile_function(solve_puzzle, time_spent, "inputs/Data_15.txt");
     print("Puzzle res pt 1:", res.first, "pt 2:", res.second, "puzzle calculation took:", time_spent, "ms");
 
     return 0;
