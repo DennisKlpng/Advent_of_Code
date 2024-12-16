@@ -33,4 +33,5 @@ if __name__ == '__main__':
         os.remove(item)
     
     # delete steps-folder from visu gen
-    shutil.rmtree(os.getcwd() + "/steps")
+    if(os.path.isdir(os.getcwd() + "/steps")):
+        shutil.rmtree(os.getcwd() + "/steps")
