@@ -1,5 +1,6 @@
 #include "utils.hpp"
 #include <cmath>
+#include <deque>
 
 uint64_t get_combo(uint64_t operand, uint64_t& A, uint64_t& B, uint64_t& C){
     if(operand <= 3){
@@ -49,8 +50,21 @@ std::string parse_instr(uint64_t opcode, uint64_t operand, uint64_t& A, uint64_t
     return res;
 }
 
-std::pair<std::string, uint64_t> solve_puzzle(std::string filename){
-    std::pair<std::string, uint64_t> res{"", 0};
+std::string solve_code(std::vector<int64_t> instr, uint64_t A, uint64_t B, uint64_t C, const std::string sep=","){
+    std::string res = "";
+    for(uint64_t n = 0; n <= instr.size();){
+        std::string tmp = parse_instr(instr[0+n], instr[1+n], A, B, C, n);
+        if(tmp != "") {
+            if(res != "") res += sep;
+            res += tmp;
+        }
+        if(n >= instr.size()) break;
+    }
+    return res;
+}
+
+std::pair<std::string, int64_t> solve_puzzle(std::string filename){
+    std::pair<std::string, int64_t> res{"", std::numeric_limits<int64_t>::max()};
 
     uint64_t A, B, C;
 
@@ -60,41 +74,52 @@ std::pair<std::string, uint64_t> solve_puzzle(std::string filename){
     C = get_ints_from_string(data[0][2])[0];
 
     auto instructions = get_ints_from_string(data[1][0]);
+    res.first = solve_code(instructions, A, B, C);
 
-    for(uint64_t n = 0; n < instructions.size();){
-        std::string tmp = parse_instr(instructions[0+n], instructions[1+n], A, B, C, n);
-        if(tmp != "") {
-            if(res.first != "") res.first += ",";
-            res.first += tmp;
-        }
-        if(n >= instructions.size()) break;
+    //part 2:
+    /*
+    - A is only modified by adv-operation => opcode 0
+    - Last instruction is 3,0
+    - => code completely loop until A becomes 0
+    - print is always second last and prints get_combo(operand) (A for example, B for data)
+    - we have one pair of (0, n) which is the only pair changing A
+    - we shrink A each loop by 2^n
+    - the l-th digit changes every (2^n)^(l-1)-steps (appears in the first)
+    - check all start pos candidates where the l-th last digit is the same as the l-th last from target
+    - if not identical, increment start pos by (2^n)^(l-1)
+    - iterate between l = size(input)-1 and 1
+    */
+
+    int64_t size_output = instructions.size();
+    uint16_t factor = 0;
+    for(uint8_t n = 0; n < size_output; n+=2){
+        if(instructions[n] == 0) factor = pow(2, instructions[n + 1]);
     }
-
+    typedef std::pair<int64_t, int64_t> start_cdt;
+    std::deque<start_cdt> start_A_pos_cdt = {start_cdt(0, size_output - 1)}; //0, 15 for real input
+    while(!start_A_pos_cdt.empty()){
+        auto cdt_a = start_A_pos_cdt.back();
+        auto start_A = cdt_a.first;
+        for(int i = 0; i < 8; i++){
+            std::string curr_solve = solve_code(instructions, start_A, B, C,"");
+            int64_t last = static_cast<int64_t>(curr_solve[cdt_a.second]) - '0';
+            if(last == instructions[cdt_a.second]) {
+                if(cdt_a.second > 0) start_A_pos_cdt.push_front(start_cdt(start_A, cdt_a.second -1));
+                else if(start_A < res.second) res.second = start_A;
+            }
+            start_A += pow(factor, cdt_a.second);
+        }
+        start_A_pos_cdt.pop_back();
+    }
+    
     return res;
 }
 
 int main(){
-    // {
-    //     //Test cases
-    //     assert(bitwise_xor(29, 7) == 26);
-    //     uint64_t A, B, C, n;
-    //     C = 9;
-    //     parse_instr(2, 6, A, B, C, n);
-    //     assert(B == 1);
-    //     A = 10;
-    //     assert("0" == parse_instr(5, 0, A, B, C, n));
-    //     assert("1" == parse_instr(5, 1, A, B, C, n));
-    //     assert("2" == parse_instr(5, 4, A, B, C, n));
-    //     B = 29;
-    //     parse_instr(1, 7, A, B, C, n);
-    //     assert(B == 26);
-    //     B = 2024;
-    //     C = 43690;
-    //     parse_instr(4, 0, A, B, C, n);
-    //     assert(B == 44354);
-    // }
-
-    std::pair<std::string, uint64_t> res = solve_puzzle("inputs/Test_17.txt");
+    std::pair<std::string, int64_t> res;
+    res = solve_puzzle("inputs/Test_17.txt");
+    print("Test res pt 1:", res.first, "pt 2:", res.second);
+    res = solve_puzzle("inputs/Test_17_2.txt");
     print("Test res pt 1:", res.first, "pt 2:", res.second);
     double time_spent;
     res = profile_function(solve_puzzle, time_spent, "inputs/Data_17.txt");
