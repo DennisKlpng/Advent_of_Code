@@ -36,7 +36,7 @@ void visualize_map(const std::map<pt, uint64_t>& curr_map){
     print("");
 }
 
-uint64_t dijkstra(const pt& start, const pt& goal, std::map<pt, pt>& map_world){
+uint64_t dijkstra(const pt& start, const pt& goal, std::map<pt, pt> map_world){
     auto custom_comp = [](heap_entry& l, heap_entry& r){
         return l.curr_cost > r.curr_cost;
     };
@@ -94,6 +94,16 @@ std::pair<uint64_t, std::string> solve_puzzle(std::string filename, bool test=fa
     pt goal = (test) ? pt(7, 7) : pt(71, 71);
 
     res.first = dijkstra(start, goal, map_world);
+    while(true){
+        auto coords_line = get_ints_from_string(data[read_bytes]);
+        map_world[pt(coords_line[0] + 1, coords_line[1] + 1)].first = 1;
+        auto curr_path_length = dijkstra(start, goal, map_world);
+        if(curr_path_length == max){
+            res.second = std::to_string(coords_line[0]) + "," + std::to_string(coords_line[1]);
+            break;
+        }
+        read_bytes++;
+    }
 
     return res;
 }
