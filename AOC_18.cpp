@@ -94,16 +94,29 @@ std::pair<uint64_t, std::string> solve_puzzle(std::string filename, bool test=fa
     pt goal = (test) ? pt(7, 7) : pt(71, 71);
 
     res.first = dijkstra(start, goal, map_world);
-    while(true){
-        auto coords_line = get_ints_from_string(data[read_bytes]);
-        map_world[pt(coords_line[0] + 1, coords_line[1] + 1)].first = 1;
-        auto curr_path_length = dijkstra(start, goal, map_world);
+
+    uint64_t min_index = read_bytes_max;
+    uint64_t max_index = data.size() - 1;
+    uint64_t testval = 0;
+    //the cutoff is somewhere in [min_index, max_index]
+    while((max_index-min_index) > 1){
+        testval =  min_index + (max_index - min_index)/2;
+        auto map_world_tmp = map_world;
+        for(read_bytes = min_index; read_bytes <= testval; read_bytes++){
+            auto coords_line = get_ints_from_string(data[read_bytes]);
+            map_world_tmp[pt(coords_line[0] + 1, coords_line[1] + 1)].first = 1;
+        }        
+        auto curr_path_length = dijkstra(start, goal, map_world_tmp);
         if(curr_path_length == max){
-            res.second = std::to_string(coords_line[0]) + "," + std::to_string(coords_line[1]);
-            break;
+            //we are alread above the threshold
+            max_index = testval;
         }
-        read_bytes++;
+        else{
+            min_index = testval;
+        }
     }
+    auto coords_line = get_ints_from_string(data[testval]);
+    res.second = std::to_string(coords_line[0]) + "," + std::to_string(coords_line[1]);
 
     return res;
 }
