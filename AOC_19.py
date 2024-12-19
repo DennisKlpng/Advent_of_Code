@@ -6,28 +6,30 @@ patterns = []
 
 
 @functools.lru_cache()
-def try_solve(design: str):
+def try_solve(design: str, pt2=False):
     global patterns
     if design == "":
-        return True
-    possible = False
+        return 1
+    possible = 0
     for pat in patterns:
-        size = len(pat)
         if design.startswith(pat):
-            possible = possible | try_solve(design[size:])
+            if pt2:
+                possible += try_solve(design[len(pat):], pt2)
+            else:
+                possible = max(possible, try_solve(design[len(pat):]), pt2)
     return possible
 
 
 @utils.time_tracker
 def solve_puzzle(filename):
     global patterns
-    res_pt1 = 0
+    res_pt1, res_pt2 = 0, 0
     patt_list, designs = utils.split_fileinput_by_emptylines(filename)
     patterns = patt_list[0].split(", ")
     for dsg in designs:
-        if try_solve(dsg):
-            res_pt1 += 1
-    return res_pt1, 0
+        res_pt1 += try_solve(dsg)
+        res_pt2 += try_solve(dsg, True)
+    return res_pt1, res_pt2
 
 
 if __name__ == '__main__':
