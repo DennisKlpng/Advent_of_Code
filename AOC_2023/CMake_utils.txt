@@ -1,0 +1,8 @@
+function(invert_string input_data)
+    string(REGEX MATCHALL "[a-z1-9]" list_line "${input_data}")
+    message("list: " ${list_line})
+    list(REVERSE list_line)
+    message("list: " ${list_line})
+    list(JOIN list_line "" LINE_INV)
+    set(LINE_INV ${LINE_INV} PARENT_SCOPE)
+endfunction()

@@ -130,6 +130,9 @@ dmypy.json
 
 # AOC input data
 *.txt
+# CMake
+!CMakeLists.txt
+!CMake_utils.txt
 
 # cpp exe
 *.exe
