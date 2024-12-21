@@ -78,7 +78,7 @@ int64_t solve_robot(const std::string& instr, const int64_t rec_depth){
     return res;
 }
 
-int64_t solve_numpad_press(const pt& curr_pos, const pt& dst_pos){
+int64_t solve_numpad_press(const pt& curr_pos, const pt& dst_pos, bool part2 = false){
     int64_t res = std::numeric_limits<int64_t>::max();
     std::deque<visited_pt> vis_queue{{curr_pos, ""}};
     while(!vis_queue.empty()){
@@ -88,7 +88,7 @@ int64_t solve_numpad_press(const pt& curr_pos, const pt& dst_pos){
 
         if(curr.pos == dst_pos){
             //search for shortest robot-instructions to get that path
-            int64_t rec_depth = 3; //num dirpads to operate
+            int64_t rec_depth = (part2) ? 26: 3;  //num dirpads to operate
             auto res_tmp = solve_robot(curr.instructions + "A", rec_depth);
             res = std::min(res, res_tmp);
             continue;
@@ -115,7 +115,7 @@ int64_t solve_numpad_press(const pt& curr_pos, const pt& dst_pos){
     return res;
 }
 
-int64_t solve_intcode(const std::string code){
+int64_t solve_intcode(const std::string code, bool part2 = false){
     int64_t res = 0;
     
     pt start(2,0);
@@ -125,7 +125,7 @@ int64_t solve_intcode(const std::string code){
         if(code[i]=='A') tgt = 10;
         else tgt = std::stoi(std::string(&code[i], 1));
         pt dest = keypad.at(tgt);
-        res += solve_numpad_press(start, dest);
+        res += solve_numpad_press(start, dest, part2);
         start = dest;
     }
 
@@ -138,6 +138,7 @@ std::pair<uint64_t, uint64_t> solve_puzzle(std::string filename){
     auto data = read_file_as_lines(filename);
     for (auto &line : data){
         res.first += get_ints_from_string(line)[0] * solve_intcode(line);
+        res.second += get_ints_from_string(line)[0] * solve_intcode(line, true);
     }
 
     return res;
