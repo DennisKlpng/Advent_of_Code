@@ -25,10 +25,48 @@ static const std::map<std::string, pt> dirpad({
 
 static std::map<inst_lvl, int64_t> map_hash;
 
+int64_t solve_robot(const std::string& instr, const int64_t& rec_depth);
+
+int64_t bfs_movements(const pt& start, const pt& tgt, const int64_t& rec_depth, const pt& evil_place){
+    int64_t res_local = std::numeric_limits<int64_t>::max();
+    std::deque<visited_pt> vis_queue{{start, ""}};
+    while(!vis_queue.empty()){
+        //bfs to get shortest path on dirpad
+        auto curr = vis_queue.front();
+        vis_queue.pop_front();
+
+        if(curr.pos == tgt){
+            //search for shortest robot-instructions to get that path
+            // auto res_tmp = solve_robot(curr.instructions + "A", rec_depth - 1);
+            res_local = std::min(res_local, solve_robot(curr.instructions + "A", rec_depth - 1));
+            continue;
+        }
+        if(curr.pos == evil_place){
+            continue; //never visit that spot
+        }
+
+        //if current x-pos != dst x-pos: step in x-direction
+        if(curr.pos.first < tgt.first){
+            vis_queue.push_back({curr.pos + pt(1, 0), curr.instructions + ">"});
+        }
+        else if(curr.pos.first > tgt.first){
+            vis_queue.push_back({curr.pos + pt(-1, 0), curr.instructions + "<"});
+        }
+        //if current y-pos != dst y-pos: step in y-direction
+        if(curr.pos.second < tgt.second){
+            vis_queue.push_back({curr.pos + pt(0, 1), curr.instructions + "^"});
+        }
+        else if(curr.pos.second > tgt.second){
+            vis_queue.push_back({curr.pos + pt(0, -1), curr.instructions + "v"});
+        }
+    }
+    return res_local;
+}
+
 //robot always starts at A and ends at A, since every instruction ends with A
 //this means when the outermost robot does some kind of move, this move always translates to the same dirpad-moves below
 //=> we can just hash that move-pattern and get results faster
-int64_t solve_robot(const std::string& instr, const int64_t rec_depth){
+int64_t solve_robot(const std::string& instr, const int64_t& rec_depth){
     inst_lvl hash_level(instr, rec_depth);
 
     if(map_hash.contains(hash_level)) return map_hash.at(hash_level);
@@ -37,81 +75,12 @@ int64_t solve_robot(const std::string& instr, const int64_t rec_depth){
     int64_t res = 0;
     pt curr_pos(2,1);
     for(uint64_t i = 0; i < instr.size(); i++){
-        int64_t res_local = std::numeric_limits<int64_t>::max();
         pt dst_pos(dirpad.at(std::string(&instr[i], 1)));
-        std::deque<visited_pt> vis_queue{{curr_pos, ""}};
-        while(!vis_queue.empty()){
-            //bfs to get shortest path on dirpad
-            auto curr = vis_queue.front();
-            vis_queue.pop_front();
-
-            if(curr.pos == dst_pos){
-                //search for shortest robot-instructions to get that path
-                // auto res_tmp = solve_robot(curr.instructions + "A", rec_depth - 1);
-                res_local = std::min(res_local, solve_robot(curr.instructions + "A", rec_depth - 1));
-                continue;
-            }
-            if(curr.pos == pt(0, 1)){
-                continue; //never visit that spot
-            }
-
-            //if current x-pos != dst x-pos: step in x-direction
-            if(curr.pos.first < dst_pos.first){
-                vis_queue.push_back({curr.pos + pt(1, 0), curr.instructions + ">"});
-            }
-            else if(curr.pos.first > dst_pos.first){
-                vis_queue.push_back({curr.pos + pt(-1, 0), curr.instructions + "<"});
-            }
-            //if current y-pos != dst y-pos: step in y-direction
-            if(curr.pos.second < dst_pos.second){
-                vis_queue.push_back({curr.pos + pt(0, 1), curr.instructions + "^"});
-            }
-            else if(curr.pos.second > dst_pos.second){
-                vis_queue.push_back({curr.pos + pt(0, -1), curr.instructions + "v"});
-            }
-        }
+        res += bfs_movements(curr_pos, dst_pos, rec_depth, pt(0, 1));
         curr_pos = dst_pos;
-        res += res_local;
     }
 
     map_hash.emplace(hash_level, res);
-    return res;
-}
-
-int64_t solve_numpad_press(const pt& curr_pos, const pt& dst_pos, bool part2 = false){
-    int64_t res = std::numeric_limits<int64_t>::max();
-    std::deque<visited_pt> vis_queue{{curr_pos, ""}};
-    while(!vis_queue.empty()){
-        //bfs shortest path
-        auto curr = vis_queue.front();
-        vis_queue.pop_front();
-
-        if(curr.pos == dst_pos){
-            //search for shortest robot-instructions to get that path
-            int64_t rec_depth = (part2) ? 26: 3;  //num dirpads to operate
-            auto res_tmp = solve_robot(curr.instructions + "A", rec_depth);
-            res = std::min(res, res_tmp);
-            continue;
-        }
-        if(curr.pos == pt(0, 0)){
-            continue; //never visit that spot
-        }
-
-        //if current x-pos != dst x-pos: step in x-direction
-        if(curr.pos.first < dst_pos.first){
-            vis_queue.push_back({curr.pos + pt(1, 0), curr.instructions + ">"});
-        }
-        else if(curr.pos.first > dst_pos.first){
-            vis_queue.push_back({curr.pos + pt(-1, 0), curr.instructions + "<"});
-        }
-        //if current y-pos != dst y-pos: step in y-direction
-        if(curr.pos.second < dst_pos.second){
-            vis_queue.push_back({curr.pos + pt(0, 1), curr.instructions + "^"});
-        }
-        else if(curr.pos.second > dst_pos.second){
-            vis_queue.push_back({curr.pos + pt(0, -1), curr.instructions + "v"});
-        }
-    }
     return res;
 }
 
@@ -125,7 +94,10 @@ int64_t solve_intcode(const std::string code, bool part2 = false){
         if(code[i]=='A') tgt = 10;
         else tgt = std::stoi(std::string(&code[i], 1));
         pt dest = keypad.at(tgt);
-        res += solve_numpad_press(start, dest, part2);
+        // res += solve_numpad_press(start, dest, part2);
+        int64_t rec_depth = (part2) ? 26: 3;  //num dirpads to operate
+        //bfs on the numpad is the same, add 1 since we have an additional pad to parse
+        res += bfs_movements(start, dest, rec_depth + 1, pt(0, 0)); 
         start = dest;
     }
 
