@@ -1,7 +1,7 @@
 #include "utils.hpp"
 
 int64_t hash_seq(const std::vector<int8_t>& vec){
-    return 10 + vec[0] /*1-19*/ + (10 + vec[1]) * 20 + (10 + vec[2]) * 20*20 + (10 + vec[3]) * 20*20*20;  
+    return vec[0] /*1-19*/ + vec[1] * 20 + vec[2] * 20*20 + vec[3] * 20*20*20;  
 }
 
 uint64_t calc_secret_num(const uint64_t input, const uint64_t steps, std::vector<int8_t>& banana_map){
@@ -27,7 +27,7 @@ uint64_t calc_secret_num(const uint64_t input, const uint64_t steps, std::vector
 
         int8_t price = secret % 10;
         std::rotate(last_pricediffs.rbegin(), last_pricediffs.rbegin() + 1, last_pricediffs.rend());
-        last_pricediffs[0] = price - last_price;
+        last_pricediffs[0] = 10 + price - last_price;
         last_price = price;
         if(i > 4u){
             int64_t sequence_hash = hash_seq(last_pricediffs);
