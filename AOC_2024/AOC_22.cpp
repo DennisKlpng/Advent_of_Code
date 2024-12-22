@@ -4,7 +4,7 @@ int64_t hash_seq(const std::vector<int8_t>& vec){
     return 10 + vec[0] /*1-19*/ + (10 + vec[1]) * 20 + (10 + vec[2]) * 20*20 + (10 + vec[3]) * 20*20*20;  
 }
 
-uint64_t calc_secret_num(const uint64_t input, const uint64_t steps, std::map<int64_t, int8_t>& banana_map){
+uint64_t calc_secret_num(const uint64_t input, const uint64_t steps, std::vector<int8_t>& banana_map){
     //steps, after each mix + prune
     //multiply by 64 => 2^6 => shift left by 6 bits
     //divide by 32 => 2^5 => shift right by 5 bits
@@ -31,7 +31,9 @@ uint64_t calc_secret_num(const uint64_t input, const uint64_t steps, std::map<in
         last_price = price;
         if(i > 4u){
             int64_t sequence_hash = hash_seq(last_pricediffs);
-            if(!banana_map.contains(sequence_hash)) banana_map.emplace(sequence_hash, price);
+            if(banana_map[sequence_hash] == 0){
+                banana_map[sequence_hash] = price;
+            }
         }
     }
 
@@ -42,19 +44,17 @@ std::pair<uint64_t, uint64_t> solve_puzzle(std::string filename){
     std::pair<uint64_t, uint64_t> res{0, 0};
 
     auto data = read_file_as_lines(filename);
-    std::map<int64_t, int64_t> map_totals;
+    std::vector<int64_t> map_totals(20*20*20*20, 0);
 
     for(auto& line: data){
         auto start_num = get_ints_from_string(line)[0];
-        std::map<int64_t, int8_t> map_buyer;
+        std::vector<int8_t> map_buyer(20*20*20*20, 0);
         res.first += calc_secret_num(start_num, 2000, map_buyer);
-        for(auto& [k, v]: map_buyer){
-            if(!map_totals.contains(k)) map_totals.emplace(k, v);
-            else map_totals[k] += v;
+        for(uint64_t i : std::views::iota(0u, map_buyer.size())){
+            map_totals[i] += map_buyer[i];
         }
     }
-    auto vals = std::views::values(map_totals);
-    res.second = *std::max_element(vals.begin(), vals.end());
+    res.second = *std::max_element(map_totals.begin(), map_totals.end());
 
     return res;
 }
@@ -62,7 +62,7 @@ std::pair<uint64_t, uint64_t> solve_puzzle(std::string filename){
 void test() {
     uint64_t start = 123;
     for ([[maybe_unused]] uint64_t i : std::views::iota(1, 10)){
-        std::map<int64_t, int8_t> map_buyer;
+        std::vector<int8_t> map_buyer(20*20*20*20, 0);
         start = calc_secret_num(start, 1, map_buyer);
         print(start);
     }
