@@ -30,9 +30,6 @@ function(solve input_data part_2)
                 elseif(${COLOR} STREQUAL "green")
                     math(EXPR GREEN_CURR "${GREEN_CURR} + ${COUNT}")
                 endif()
-                # message(red ${RED_CURR})
-                # message(blue ${BLUE_CURR})
-                # message(green ${GREEN_CURR})
                 # check if set uses more marbles than possible
                 if((${RED_CURR} GREATER ${RED_MAX}) OR (${GREEN_CURR} GREATER ${GREEN_MAX}) OR 
                         (${BLUE_CURR} GREATER ${BLUE_MAX}))
@@ -55,7 +52,6 @@ function(solve input_data part_2)
             
         math(EXPR GAME_INDEX "${GAME_INDEX} + 1")
         math(EXPR POWER "${RED_MIN} * ${GREEN_MIN} * ${BLUE_MIN}")
-        message(${POWER})
         if(part_2)
             math(EXPR RES "${RES} + ${POWER}")
         endif()
