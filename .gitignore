@@ -148,3 +148,6 @@ compile_commands.json
 
 #vis
 .gif
+
+#Cargo
+*.lock
