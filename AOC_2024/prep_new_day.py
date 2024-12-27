@@ -11,7 +11,7 @@ if __name__ == '__main__':
 
     # generate empty cpp / py for the day if not existing
     if not os.path.exists(tgt_filename):
-        env = Environment(loader=FileSystemLoader(searchpath="templates/"))
+        env = Environment(loader=FileSystemLoader(searchpath="../misc/templates/"))
         template = None
         if ending == "cpp":
             template = env.get_template("cpp.template")
