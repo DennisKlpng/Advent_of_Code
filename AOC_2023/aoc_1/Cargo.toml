@@ -5,4 +5,3 @@ edition = "2021"
 
 [dependencies]
 rust_utils = {path = "../../rust_utils"}
-regex = "1.11.1"
