@@ -24,7 +24,7 @@ fn get_nums(line: &String, pt2: bool) -> u64{
 fn solve(filename: &str) -> (u64, u64){
     let mut res = (0u64, 0u64);
     if let Ok(lines) = utils::file_read::read_file_as_lines(filename){
-        for line in lines.flatten() {
+        for line in lines {
             // println!("{}", line);
             res.0 += get_nums(&line, false);
             res.1 += get_nums(&line, true);

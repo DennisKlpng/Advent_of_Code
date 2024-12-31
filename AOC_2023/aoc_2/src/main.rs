@@ -30,7 +30,7 @@ fn solve(filename: &str) -> (u64, u64){
             ("green", 0),
             ("blue", 0),].into_iter().collect();
     if let Ok(lines) = utils::file_read::read_file_as_lines(filename){
-        for (i, line) in lines.flatten().into_iter().enumerate() {
+        for (i, line) in lines.into_iter().enumerate() {
             let mut colors_min_loc = colors_min.to_owned();
             let sets: Vec<_> = line.split(":").last().unwrap().split(";").map(|x| x.trim()).collect();
             //map from set to validity, does the part 2 accumulation (get min num dices for each game in colors_min_loc) on the fly
