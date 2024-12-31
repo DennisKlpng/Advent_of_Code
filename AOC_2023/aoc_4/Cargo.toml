@@ -1,7 +1,7 @@
 [package]
-name = "rust_utils"
+name = "aoc_4"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-num-traits = "0.2.19"
+rust_utils = {path = "../../rust_utils"}
