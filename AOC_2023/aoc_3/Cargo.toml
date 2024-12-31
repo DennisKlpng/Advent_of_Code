@@ -7,3 +7,4 @@ edition = "2021"
 rust_utils = {path = "../../rust_utils"}
 grid = "0.15.0"
 regex = "1.11.1"
+rustc-hash = "2.1.0"

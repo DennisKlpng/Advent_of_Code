@@ -1,6 +1,9 @@
+use std::collections::HashSet;
+
 use rust_utils as utils;
 use grid::Grid;
 use regex::Regex;
+use rustc_hash::FxHashMap;
 
 struct GridNumber{
     min_x: usize,
@@ -9,23 +12,28 @@ struct GridNumber{
     num: u64
 }
 
-fn get_diag_neighbours(pt: (usize, usize)) -> Vec<(usize, usize)>{
-    
-    let res: Vec<(usize, usize)> = vec![(pt.0 - 1usize, pt.1 - 1usize),
-                                        (pt.0 - 1usize, pt.1),
-                                        (pt.0 - 1usize, pt.1 + 1usize),
-                                        (pt.0, pt.1 - 1usize),
-                                        (pt.0, pt.1 + 1usize),
-                                        (pt.0 + 1usize, pt.1 - 1usize),
-                                        (pt.0 + 1usize, pt.1),
-                                        (pt.0 + 1usize, pt.1 + 1usize)];
-    res
+fn get_diag_neighbours_num(num: &GridNumber) -> Vec<(usize, usize)>{
+    let mut res:HashSet<(usize, usize)> = HashSet::new();
+    for x in num.min_x..=num.max_x{
+        let pt: (usize, usize) = (num.y, x);
+        res.insert((pt.0 - 1usize, pt.1 - 1usize));
+        res.insert((pt.0 - 1usize, pt.1));
+        res.insert((pt.0 - 1usize, pt.1 + 1usize));
+        res.insert((pt.0, pt.1 - 1usize));
+        res.insert((pt.0, pt.1 + 1usize));
+        res.insert((pt.0 + 1usize, pt.1 - 1usize));
+        res.insert((pt.0 + 1usize, pt.1));
+        res.insert((pt.0 + 1usize, pt.1 + 1usize));
+    }
+
+    return res.into_iter().collect();
 }
 
 fn solve(filename: &str) -> (u64, u64){
     let mut res = (0u64, 0u64);
     let mut grid_nums: Vec<GridNumber> = vec![];
     let mut grid : Grid<char>;
+    let mut gears: FxHashMap<(usize, usize), Vec<u64>> = FxHashMap::default();
     let re = Regex::new(r"[0-9]+").unwrap();
     if let Ok(lines) = utils::file_read::read_file_as_lines(filename){
         //pad grid on each side
@@ -43,19 +51,27 @@ fn solve(filename: &str) -> (u64, u64){
         }
         for gn in grid_nums.iter(){
             let mut adj = false;
-            //search all neighbours if there's a symbol there
-            for x in gn.min_x..=gn.max_x{
-                //check all neighbours
-                if get_diag_neighbours((gn.y, x)).iter().any(
-                    |x| grid[*x] != '.' && !grid[*x].is_ascii_digit()){
+            //search all neighbours => we have multiple x-values available!
+            for nb in get_diag_neighbours_num(gn){
+                if grid[nb] != '.' && !grid[nb].is_ascii_digit(){
                     adj = true;
+                }
+                if grid[nb] == '*'{
+                    let v = gears.entry(nb).or_default();
+                    v.push(gn.num);
                 }
             }
             if adj{
                 res.0 += gn.num;
             }
         }
-    };
+        for (_gear, nb_nums) in gears{
+            if nb_nums.len() == 2{
+                //save since length is 2
+                res.1 += nb_nums.into_iter().fold(1, |prod, a| prod * a);
+            }
+        }
+    }
     res
 }
 
