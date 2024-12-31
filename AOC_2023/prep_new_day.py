@@ -53,8 +53,8 @@ if __name__ == '__main__':
     # create empty files for test / puzzle input (if not existing yet)
     if not os.path.exists("inputs"):
         os.mkdir("inputs")
-    open(test_filename, "a").close()
-    open(data_filename, "a").close()
+    open("inputs/" + test_filename, "a").close()
+    open("inputs/" + data_filename, "a").close()
 
     # delete executables (from cpp-compiling)
     for item in [x for x in os.listdir(".") if x.endswith(".exe")]:
