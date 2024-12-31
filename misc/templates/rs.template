@@ -3,7 +3,7 @@ use rust_utils as utils;
 fn solve(filename: &str) -> (u64, u64){
     let res = (0u64, 0u64);
     if let Ok(lines) = utils::file_read::read_file_as_lines(filename){
-        for line in lines.flatten() {
+        for line in lines {
             // println!("{}", line);
         }
     };
@@ -12,7 +12,7 @@ fn solve(filename: &str) -> (u64, u64){
 }
 
 fn main(){
-    let res = solve("../inputs/{{test_file}}");
+    let mut res = solve("../inputs/{{test_file}}");
     println!("Test res pt 1: {:?} pt2: {:?}", res.0, res.1);
     use std::time::Instant;
     let now = Instant::now();
