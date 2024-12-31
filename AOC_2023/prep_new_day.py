@@ -37,6 +37,9 @@ if __name__ == '__main__':
     if not dont_update:
         with open(f"aoc_{day}/Cargo.toml", "a") as f:
             f.write('rust_utils = {path = "../../rust_utils"}')
+            f.write('\n\n')
+            f.write('[profile.dev]\n')
+            f.write('opt-level = 0')
     
     #Update settings.json
     if os.path.exists("../.vscode/settings.json"):
