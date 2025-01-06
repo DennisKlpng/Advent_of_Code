@@ -1,0 +1,10 @@
+[package]
+name = "aoc_6"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rust_utils = {path = "../../rust_utils"}
+
+[profile.dev]
+opt-level = 0
