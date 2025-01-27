@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 rust_utils = {path = "../../rust_utils"}
 rustc-hash = "2.1.0"
+num = "0.4.3"
 
 [profile.dev]
 opt-level = 0
