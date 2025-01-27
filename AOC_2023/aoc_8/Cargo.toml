@@ -1,0 +1,11 @@
+[package]
+name = "aoc_8"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rust_utils = {path = "../../rust_utils"}
+rustc-hash = "2.1.0"
+
+[profile.dev]
+opt-level = 0
