@@ -1,3 +1,5 @@
+use std::thread;
+
 use rust_utils as utils;
 use rustc_hash::FxHashMap;
 use num::integer::lcm;
@@ -16,7 +18,7 @@ fn iterate(inst: &String, map: &FxHashMap<String, (String, String)>, start: &Str
         }
         ret_val += 1;
         //for pt2 it loops with the num of steps until the first occurence of an end
-        if (pos == "ZZZ" && !pt2) | (pos.chars().last().unwrap() == 'Z' && pt2){
+        if (pos == "ZZZ" && !pt2) | (pos.ends_with('Z') && pt2){
             return ret_val
         }
         index_instr += 1;
@@ -44,10 +46,19 @@ fn solve(filename: &str, pt2: bool) -> u64{
             res = iterate(&inst, &map, &String::from("AAA"), pt2);
         }
         else{
+            let mut children = vec![];
+            for start in starting_pts_2{
+                let map_clone = map.clone();
+                let inst_clone = inst.clone();
+                children.push(thread::spawn(move || -> u64 {
+                    let result = iterate(&inst_clone, &map_clone, &start, pt2);
+                    result
+                }));
+            }
             //calculate least common multiple of all step-sizes needed to loop
             //for this: calc lcm in each step
-            res = starting_pts_2.into_iter().fold(1, 
-                |acc, start| lcm(acc, iterate(&inst, &map, &start, pt2))
+            res = children.into_iter().fold(1, 
+                |acc, child_process| lcm(acc, child_process.join().unwrap())
             );
         }
     };
